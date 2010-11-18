@@ -1,0 +1,5 @@
+; $Id$
+name = Imagecache External
+description = Allows you to fetch and use external images with imagecache
+dependencies[] = imagecache
+core = 6.x
