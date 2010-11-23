@@ -66,7 +66,10 @@ function imagecache_external_image() {
   $args = func_get_args();
   $preset = array_shift($args);
   // pop the http:
-  array_shift($args);
+  if ($args[0] == 'http:' ||
+      $args[0] == 'https:') {
+    array_shift($args);
+  }
   $url = 'http://'. implode('/', $args);
   $host = $args[0]; //the host comes first
   //now we test it against the whitelist/blacklist
@@ -78,9 +81,9 @@ function imagecache_external_image() {
   // Check if the list is set as a blacklist and the host is in the list or if
   // the list is set as a whitelist and the host is not found in the list.
   // Note that this is retrospective, ie a previously downloaded image can be blocked
-  if (((variable_get('imagecache_external_option', 'black') == 'black' &&
+  if (((variable_get('imagecache_external_option', 'white') == 'black' &&
        in_array($host, $list)) ||
-      (variable_get('imagecache_external_option', 'black') == 'white' &&
+      (variable_get('imagecache_external_option', 'white') == 'white' &&
        !in_array($host, $list))) &&
       !user_access('Bypass black/white list')) {
     //if we are unsuccessful then log a message in watchdog

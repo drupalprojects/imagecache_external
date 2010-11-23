@@ -20,7 +20,7 @@ function imagecache_external_admin_form($form_state) {
       'black' => t('Blacklist: Only deny images from the listed hosts.'),
       'white' => t('Whitelist: Deny all images <b>except</b> the listed hosts.'),
     ),
-    '#default_value' => variable_get('imagecache_external_option', 'black'),
+    '#default_value' => variable_get('imagecache_external_option', 'white'),
   );
 
   $form['imagecache_external_hosts'] = array(
