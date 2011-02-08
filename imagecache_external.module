@@ -12,13 +12,6 @@
  * Implementation of hook_menu().
  */
 function imagecache_external_menu() { 
-  // This is the minimum information you can provide for a menu item.
-  $items['external'] = array(
-    'title' => 'External image',
-    'page callback' => 'imagecache_external_image',
-    'access arguments' => array('View external images'),
-    'type' => MENU_CALLBACK
-  );
   // more complex menu item
   $items['admin/settings/imagecache_external'] = array(
     'title' => 'Imagecache External',
@@ -51,7 +44,6 @@ function imagecache_external_menu() {
   return $items;
 }
 
-
 /**
  * Implementation of hook_perm().
  */
@@ -60,18 +52,35 @@ function imagecache_external_perm() {
 }
 
 /**
- * Menu callback does the heavy lifting
+ * Util to generate a path to an image
+ * @param $url string the url to the image
+ * @param $preset imagecache preset
+ * @return string the url to the image
 */
-function imagecache_external_image() {
-  $args = func_get_args();
-  $preset = array_shift($args);
-  // pop the http:
-  if ($args[0] == 'http:' ||
-      $args[0] == 'https:') {
-    array_shift($args);
+function imagecache_external_generate_path($url, $preset) {
+  $hash = md5($url);
+  $dir = file_create_path('externals');
+  if (!file_check_directory($dir)) {
+    mkdir($dir, 0775, FALSE);
   }
-  $url = 'http://'. implode('/', $args);
-  $host = $args[0]; //the host comes first
+  $hash = md5($url);
+  $cachepath = file_create_path('externals/'. $hash);
+  if (!is_file($cachepath)) {
+    $result = imagecache_external_fetch($url, $cachepath);
+    if (!$result) {
+      //we couldn't get the file
+      return drupal_not_found();
+    }
+  }
+  //we now have the file, return url relative to the imagecache preset
+  return url(file_directory_path() .'/imagecache/'. $preset .'/externals/'. $hash);
+}
+
+/**
+ * Api function to fetch a url
+ * @param $url string url to fetch
+*/
+function imagecache_external_fetch($url, $cachepath) {
   //now we test it against the whitelist/blacklist
   if (!$url) {
     return drupal_not_found();
@@ -90,39 +99,23 @@ function imagecache_external_image() {
     watchdog('imagecache_external', 'The image '. $url .' could not be retrieved, it did not meet the black/white list requirements.');
     return drupal_access_denied();
   }
-  $dir = file_create_path('externals');
-  if (!file_check_directory($dir)) {
-    mkdir($dir, 0775, FALSE);
+  if (!user_access('Fetch external images')) {
+    watchdog('imagecache_external', 'The image '. $url .' could not be retrieved, the user does not have permission to fetch external images.');
+    return drupal_access_denied();
   }
-  $hash = md5($url);
-  $cachepath = file_create_path('externals/'. $hash);
-  if (!is_file($cachepath)) {
-    if (!user_access('Fetch external images')) {
-      watchdog('imagecache_external', 'The image '. $url .' could not be retrieved, the user does not have permission to fetch external images.');
-      return drupal_access_denied();
-    }
-    $result = drupal_http_request($url);
-    $code   = floor($result->code / 100) * 100;
-    $types  = array('image/jpeg', 'image/png', 'image/gif');
-    if ($result->data && $code != 400 && $code != 500 && in_array($result->Content-Type, $types)) {
-      $src = file_save_data($result->data, $cachepath);
-      $transfer = TRUE;
-    }
-    else  {
-      //if we are unsuccessful then log a message in watchdog
-      watchdog('imagecache_external', 'The image '. $url .' could not be retrieved');
-      return drupal_not_found();
-    }
+  $result = drupal_http_request($url);
+  $code   = floor($result->code / 100) * 100;
+  $types  = array('image/jpeg', 'image/png', 'image/gif');
+  if ($result->data && $code != 400 && $code != 500 && in_array($result->Content-Type, $types)) {
+    $src = file_save_data($result->data, $cachepath);
   }
   else  {
-    $transfer = TRUE;
+    //if we are unsuccessful then log a message in watchdog
+    watchdog('imagecache_external', 'The image '. $url .' could not be retrieved');
+    return drupal_not_found();
   }
-  if ($transfer) {
-    $args = explode('/', file_directory_path());
-    array_push($args, 'externals', $hash);
-    array_unshift($args, $preset);
-    return call_user_func_array('imagecache_cache', $args);
-  }
+  return TRUE;
 }
+
 
 
