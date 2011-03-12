@@ -85,6 +85,10 @@ function imagecache_external_fetch($url, $cachepath) {
   if (!$url) {
     return drupal_not_found();
   }
+  //extract hostname from url
+  $parsed_url = parse_url($url);
+  $host = $parsed_url['host'];
+
   $list = preg_split('/\s+/', variable_get('imagecache_external_hosts', ''));
 
   // Check if the list is set as a blacklist and the host is in the list or if
