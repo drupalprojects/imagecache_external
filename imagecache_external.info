@@ -1,4 +1,6 @@
 name = Imagecache External
 description = Allows you to fetch and use external images with imagecache
-dependencies[] = imagecache
-core = 6.x
+dependencies[] = image
+files[] = imagecache_external.admin.inc
+files[] = imagecache_external.module
+core = 7.x

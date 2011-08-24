@@ -3,14 +3,14 @@
  * @file imagecache_external.admin.inc
  * Admin forms for this module
  * @copyright Copyright(c) 2010 Lee Rowlands
- * @license GPL v2 http://www.fsf.org/licensing/licenses/gpl.html 
+ * @license GPL v2 http://www.fsf.org/licensing/licenses/gpl.html
  * @author Lee Rowlands contact at rowlandsgroup dot com
- * 
+ *
  */
 /**
  * Form builder
-*/
-function imagecache_external_admin_form($form_state) {
+ */
+function imagecache_external_admin_form($form, $form_state) {
   $form = array();
   $form['imagecache_external_option'] = array(
     '#type' => 'radios',
@@ -34,11 +34,11 @@ function imagecache_external_admin_form($form_state) {
 
 /**
  * Form builder
-*/
-function imagecache_external_flush_form($form_state) {
+ */
+function imagecache_external_flush_form($form, $form_state) {
   return confirm_form($form,
     t('Flush all external images?'),
-    'admin/settings/imagecache_external',
+    'admin/config/media/imagecache_external',
     t('Are you sure, this cannot be undone.'),
     t('Flush'),
     t('Cancel')
@@ -47,13 +47,15 @@ function imagecache_external_flush_form($form_state) {
 
 /**
  * Submit handler
-*/
+ */
 function imagecache_external_flush_form_submit($form, &$form_state) {
-  $dir = realpath(file_directory_path() .'/externals');
-  if (is_dir($dir)) {
-    _imagecache_recursive_delete($dir);
+  $scheme = file_default_scheme();
+  $wrapper= file_stream_wrapper_get_instance_by_scheme($scheme);
+  $path   = realpath($wrapper->getDirectoryPath() . '/imagecache');
+  if (is_dir($path)) {
+    file_unmanaged_delete_recursive($path);
     drupal_set_message(t('Flushed external images'));
-    $form_state['redirect'] = 'admin/settings/imagecache_external';
+    $form_state['redirect'] = 'admin/config/media/imagecache_external';
   }
 
 }
