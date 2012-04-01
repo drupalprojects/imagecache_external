@@ -119,9 +119,13 @@ function imagecache_external_generate_path($url, $preset) {
   // Create the extenal images directory and ensure it's writable.
   $hash       = md5($url);
   $scheme     = file_default_scheme();
-  $directory  = $scheme . '://imagecache/' . $preset . '/externals/' . $hash;
+  $directory  = $scheme . '://imagecache/externals';
   if(file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-    $file = imagecache_external_fetch($url, $directory);
+    if (file_exists($directory. '/' . $hash)) {
+      return $directory. '/' . $hash;
+    }
+
+    $file = imagecache_external_fetch($url, $directory . '/' . $hash);
     if ($file) {
       return $file->uri;
     }
@@ -164,7 +168,7 @@ function imagecache_external_fetch($url, $cachepath) {
   $result = drupal_http_request($url);
   $code   = floor($result->code / 100) * 100;
   $types  = array('image/jpeg', 'image/png', 'image/gif');
-  if ($result->data && $code != 400 && $code != 500 && in_array($result->headers['content-type'], $types)) {
+  if (isset($result->data) && $result->data && $code != 400 && $code != 500 && in_array($result->headers['content-type'], $types)) {
     return file_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
   }
   else {
