@@ -52,15 +52,15 @@ function imagecache_external_permission() {
   return array(
     'Fetch external images' => array(
       'title' => t('Fetch external images'),
-      'description' => t('TODO Add a description for \'Fetch external images\''),
+      'description' => t('Allows the user to fetch unfetched images.'),
     ),
     'Administer imagecache external' => array(
-      'title' => t('Administer imagecache external'),
-      'description' => t('TODO Add a description for \'Administer imagecache external\''),
+      'title' => t('Administer Imagecache External'),
+      'description' => t('Change the Imagecache External settings.'),
     ),
     'Bypass black/white list' => array(
       'title' => t('Bypass black/white list'),
-      'description' => t('TODO Add a description for \'Bypass black/white list\''),
+      'description' => t('Allows the user to bypass the URL access permissions.'),
     ),
   );
 }
