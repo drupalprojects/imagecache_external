@@ -1,0 +1,13 @@
+<?php
+/**
+ * @file
+ *
+ * (Un)install and update functions.
+ */
+
+/**
+ * Set the File Mode to 'managed' as the new default is 'unmanaged'.
+ */
+function imagecache_external_update_7100() {
+  variable_set('imagecache_external_management', 'managed');
+}

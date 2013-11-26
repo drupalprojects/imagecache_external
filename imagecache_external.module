@@ -9,6 +9,17 @@
  */
 
 /**
+ * Implements hook_page_build().
+ */
+function imagecache_external_page_build(&$page) {
+  $page['content']['image'] = array(
+    '#theme' => 'imagecache_external',
+    '#path' => 'http://farm8.staticflickr.com/7332/11061939696_54cdda67aa_o.jpg',
+    '#style_name' => 'large',
+  );
+}
+
+/**
  * Implements hook_menu().
  */
 function imagecache_external_menu() {
@@ -122,14 +133,13 @@ function imagecache_external_generate_path($url, $preset) {
   $hash       = md5($url);
   $scheme     = file_default_scheme();
   $directory  = $scheme . '://imagecache/externals';
-  if(file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+  if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
     if (file_exists($directory. '/' . $hash)) {
       return $directory. '/' . $hash;
     }
 
-    $file = imagecache_external_fetch($url, $directory . '/' . $hash);
-    if ($file) {
-      return $file->uri;
+    if ($file_uri = imagecache_external_fetch($url, $directory . '/' . $hash)) {
+      return $file_uri;
     }
   }
   // We couldn't get the file.
@@ -172,7 +182,13 @@ function imagecache_external_fetch($url, $cachepath) {
   $code   = floor($result->code / 100) * 100;
   $types  = array('image/jpeg', 'image/png', 'image/gif');
   if (isset($result->data) && $result->data && $code != 400 && $code != 500 && in_array($result->headers['content-type'], $types)) {
-    return file_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
+    if (variable_get('imagecache_external_management', 'unmanaged') == 'unmanaged') {
+      $file = file_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
+      return $file->uri;
+    }
+    else {
+      return file_unmanaged_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
+    }
   }
   else {
     // If we are unsuccessful then log a message in watchdog.

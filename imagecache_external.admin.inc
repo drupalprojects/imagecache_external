@@ -14,6 +14,17 @@
  */
 function imagecache_external_admin_form($form, $form_state) {
   $form = array();
+  $form['imagecache_external_management'] = array(
+    '#type' => 'radios',
+    '#title' => t('How should Drupal handle the files?'),
+    '#description' => t('Managed files can be re-used elsewhere on the site, for instance in the Media Library if you use the Media module. Unmanaged files are not saved to the database, but can be cached using Image Styles.'),
+    '#options' => array(
+      'unmanaged' => t('Unmanaged: Only save the images to the files folder to be able to cache them. This is  default.'),
+      'managed' => t('Managed: Download the images and save its metadata to the database.'),
+    ),
+    '#default_value' => variable_get('imagecache_external_management', 'unmanaged'),
+  );
+
   $form['imagecache_external_option'] = array(
     '#type' => 'radios',
     '#title' => t('Hosts list option'),
