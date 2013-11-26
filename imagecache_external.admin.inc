@@ -1,14 +1,16 @@
 <?php
 /*
- * @file imagecache_external.admin.inc
- * Admin forms for this module
+ * @file
+ *
+ * Admin forms for this module.
+ *
  * @copyright Copyright(c) 2010 Lee Rowlands
  * @license GPL v2 http://www.fsf.org/licensing/licenses/gpl.html
  * @author Lee Rowlands contact at rowlandsgroup dot com
- *
  */
+
 /**
- * Form builder
+ * Form builder.
  */
 function imagecache_external_admin_form($form, $form_state) {
   $form = array();
@@ -33,7 +35,7 @@ function imagecache_external_admin_form($form, $form_state) {
 }
 
 /**
- * Form builder
+ * Form builder.
  */
 function imagecache_external_flush_form($form, $form_state) {
   return confirm_form($form,
@@ -46,7 +48,7 @@ function imagecache_external_flush_form($form, $form_state) {
 }
 
 /**
- * Submit handler
+ * Submit handler.
  */
 function imagecache_external_flush_form_submit($form, &$form_state) {
   $scheme = file_default_scheme();
@@ -57,5 +59,4 @@ function imagecache_external_flush_form_submit($form, &$form_state) {
     drupal_set_message(t('Flushed external images'));
     $form_state['redirect'] = 'admin/config/media/imagecache_external';
   }
-
 }
