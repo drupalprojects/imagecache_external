@@ -170,7 +170,7 @@ function imagecache_external_fetch($url, $cachepath) {
   }
   $result = drupal_http_request($url);
   $code   = floor($result->code / 100) * 100;
-  $types  = array('image/jpeg', 'image/png', 'image/gif');
+  $types  = array('image/jpeg', 'image/png', 'image/gif', 'application/octet-stream');
   if (isset($result->data) && $result->data && $code != 400 && $code != 500 && in_array($result->headers['content-type'], $types)) {
     if (variable_get('imagecache_external_management', 'unmanaged') == 'unmanaged') {
       $file = file_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
