@@ -314,3 +314,19 @@ function imagecache_external_fetch($url, $cachepath) {
     return FALSE;
   }
 }
+
+/**
+ * Helper function to flush caches.
+ */
+function imagecache_external_flush_cache() {
+  $scheme = file_default_scheme();
+  $wrapper= file_stream_wrapper_get_instance_by_scheme($scheme);
+  $path   = realpath($wrapper->getDirectoryPath() . '/imagecache');
+  if (is_dir($path)) {
+    if (file_unmanaged_delete_recursive($path)){
+      watchdog('imagecache_external', 'Imagecache caches have been flushed');
+      return TRUE;
+    }
+    return FALSE;
+  }
+}
