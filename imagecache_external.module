@@ -69,7 +69,7 @@ function imagecache_external_generate_path($url, $preset) {
     $result = imagecache_external_fetch($url, $cachepath);
     if (!$result) {
       //we couldn't get the file
-      return drupal_not_found();
+      return FALSE;
     }
   }
   //we now have the file, return url relative to the imagecache preset
@@ -83,7 +83,7 @@ function imagecache_external_generate_path($url, $preset) {
 function imagecache_external_fetch($url, $cachepath) {
   //now we test it against the whitelist/blacklist
   if (!$url) {
-    return drupal_not_found();
+    return FALSE;
   }
   //extract hostname from url
   $parsed_url = parse_url($url);
@@ -101,11 +101,11 @@ function imagecache_external_fetch($url, $cachepath) {
       !user_access('Bypass black/white list')) {
     //if we are unsuccessful then log a message in watchdog
     watchdog('imagecache_external', 'The image '. $url .' could not be retrieved, it did not meet the black/white list requirements.');
-    return drupal_access_denied();
+    return FALSE;
   }
   if (!user_access('Fetch external images')) {
     watchdog('imagecache_external', 'The image '. $url .' could not be retrieved, the user does not have permission to fetch external images.');
-    return drupal_access_denied();
+    return FALSE;
   }
   $result = drupal_http_request($url);
   $code   = floor($result->code / 100) * 100;
@@ -116,7 +116,7 @@ function imagecache_external_fetch($url, $cachepath) {
   else  {
     //if we are unsuccessful then log a message in watchdog
     watchdog('imagecache_external', 'The image '. $url .' could not be retrieved');
-    return drupal_not_found();
+    return FALSE;
   }
   return TRUE;
 }
