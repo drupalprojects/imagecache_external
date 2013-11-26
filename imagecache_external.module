@@ -131,14 +131,15 @@ function theme_imagecache_external($variables) {
 function imagecache_external_generate_path($url, $preset) {
   // Create the extenal images directory and ensure it's writable.
   $hash       = md5($url);
+  $filename   = $hash . '.' . substr(strrchr($url,'.'),1);
   $scheme     = file_default_scheme();
   $directory  = $scheme . '://imagecache/externals';
   if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-    if (file_exists($directory. '/' . $hash)) {
-      return $directory. '/' . $hash;
+    if (file_exists($directory. '/' . $filename)) {
+      return $directory. '/' . $filename;
     }
 
-    if ($file_uri = imagecache_external_fetch($url, $directory . '/' . $hash)) {
+    if ($file_uri = imagecache_external_fetch($url, $directory . '/' . $filename)) {
       return $file_uri;
     }
   }
