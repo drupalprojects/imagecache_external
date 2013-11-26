@@ -293,11 +293,11 @@ function imagecache_external_fetch($url, $cachepath) {
        !in_array($host, $list))) &&
       !user_access('Bypass black/white list')) {
     // If we are unsuccessful then log a message in watchdog.
-    watchdog('imagecache_external', 'The image ' . $url . ' could not be retrieved, it did not meet the black/white list requirements.');
+    watchdog('imagecache_external', 'The image %url could not be retrieved, it did not meet the black/white list requirements.', array('%url' => $url));
     return FALSE;
   }
   if (!user_access('Fetch external images')) {
-    watchdog('imagecache_external', 'The image ' . $url . ' could not be retrieved, the user does not have permission to fetch external images.');
+    watchdog('imagecache_external', 'The image %url could not be retrieved, the user does not have permission to fetch external images.', array('%url' => $url));
     return FALSE;
   }
   $result = drupal_http_request($url);
@@ -314,7 +314,7 @@ function imagecache_external_fetch($url, $cachepath) {
   }
   else {
     // If we are unsuccessful then log a message in watchdog.
-    watchdog('imagecache_external', 'The image ' . $url . ' could not be retrieved');
+    watchdog('imagecache_external', 'The image %url could not be retrieved', array('%url' => $url));
     return FALSE;
   }
 }
