@@ -52,7 +52,7 @@ function imagecache_external_flush_form($form, $form_state) {
   return confirm_form($form,
     t('Flush all external images?'),
     'admin/config/media/imagecache_external',
-    t('Are you sure, this cannot be undone.'),
+    t('Are you sure? This cannot be undone.'),
     t('Flush'),
     t('Cancel')
   );
@@ -66,8 +66,12 @@ function imagecache_external_flush_form_submit($form, &$form_state) {
   $wrapper= file_stream_wrapper_get_instance_by_scheme($scheme);
   $path   = realpath($wrapper->getDirectoryPath() . '/imagecache');
   if (is_dir($path)) {
-    file_unmanaged_delete_recursive($path);
-    drupal_set_message(t('Flushed external images'));
+    if (file_unmanaged_delete_recursive($path)){
+      drupal_set_message(t('Flushed external images'));
+    }
+    else {
+      drupal_set_message(t('Could not flush external images'), 'error');
+    }
     $form_state['redirect'] = 'admin/config/media/imagecache_external';
   }
 }
