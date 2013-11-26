@@ -9,17 +9,6 @@
  */
 
 /**
- * Implements hook_page_build().
- */
-function imagecache_external_page_build(&$page) {
-  $page['content']['image'] = array(
-    '#theme' => 'imagecache_external',
-    '#path' => 'http://farm8.staticflickr.com/7332/11061939696_54cdda67aa_o.jpg',
-    '#style_name' => 'large',
-  );
-}
-
-/**
  * Implements hook_menu().
  */
 function imagecache_external_menu() {
