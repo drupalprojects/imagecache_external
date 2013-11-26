@@ -50,10 +50,6 @@ function imagecache_external_menu() {
  */
 function imagecache_external_permission() {
   return array(
-    'View external images' => array(
-      'title' => t('View external images'),
-      'description' => t('TODO Add a description for \'View external images\''),
-    ),
     'Fetch external images' => array(
       'title' => t('Fetch external images'),
       'description' => t('TODO Add a description for \'Fetch external images\''),
