@@ -242,7 +242,6 @@ function theme_imagecache_external($variables) {
  * Util to generate a path to an image.
  *
  * @param $url string the url to the image
- * @param $preset imagecache preset
  * @return string the url to the image
  */
 function imagecache_external_generate_path($url) {
@@ -298,7 +297,7 @@ function imagecache_external_fetch($url, $cachepath) {
   }
   $result = drupal_http_request($url);
   $code   = floor($result->code / 100) * 100;
-  $types  = array('image/jpeg', 'image/png', 'image/gif', 'application/octet-stream');
+  $types  = imagecache_external_allowed_mimetypes();
   if (isset($result->data) && $result->data && $code != 400 && $code != 500 && in_array($result->headers['content-type'], $types)) {
     if (variable_get('imagecache_external_management', 'unmanaged') == 'unmanaged') {
       $file = file_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
@@ -316,7 +315,51 @@ function imagecache_external_fetch($url, $cachepath) {
 }
 
 /**
+ * Implements hook_module_implements_alter().
+ *
+ * Because the Image module already checks for the image style paths,
+ * and returns and access_denied() for Imagecache External images,
+ * we need to override this function and do the check ourselves.
+ */
+function imagecache_external_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'file_download') {
+    unset($implementations['image']);
+  }
+}
+
+/**
+ * Implements hook_file_download().
+ *
+ * When using the private file system, we have to let Drupal know it's OK to
+ * download images from our Imagecache External directory.
+ *
+ * @return
+ *   An array keyed with HTTP Headers.
+ */
+function imagecache_external_file_download($uri) {
+  // Check if the path contains 'imagecache/external'.
+  // If not, we fallback to the Image module.
+  if (strpos($uri, 'imagecache/external') > 0) {
+    $info = image_get_info($uri);
+    // For safety, we only allow our own mimetypes.
+    if (in_array($info['mime_type'], imagecache_external_allowed_mimetypes())) {
+      return array(
+        'Content-Type' => $info['mime_type'],
+        'Content-Length' => $info['file_size'],
+      );
+    }
+  }
+  else {
+    // Do a fallback to the Image module.
+    return image_file_download($uri);
+  }
+}
+
+/**
  * Helper function to flush caches.
+ *
+ * @return
+ *   A Boolean value to indicate that the operation succeeded.
  */
 function imagecache_external_flush_cache() {
   $scheme = file_default_scheme();
@@ -330,3 +373,20 @@ function imagecache_external_flush_cache() {
     return FALSE;
   }
 }
+
+/**
+ * Helper function to return the mimetypes that are allowed for
+ * external caching.
+ *
+ * @return
+ *   An array of mimetypes.
+ */
+function imagecache_external_allowed_mimetypes() {
+  return array(
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'application/octet-stream',
+  );
+}
+
