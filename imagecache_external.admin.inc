@@ -14,6 +14,15 @@
  */
 function imagecache_external_admin_form($form, $form_state) {
   $form = array();
+
+  $form['imagecache_directory'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Imagecache Directory'),
+    '#required' => TRUE,
+    '#description' => t('Where, withing the files directory, should the downloaded images be stored?'),
+    '#default_value' => variable_get('imagecache_directory', 'externals'),
+  );
+
   $form['imagecache_external_management'] = array(
     '#type' => 'radios',
     '#title' => t('How should Drupal handle the files?'),
@@ -43,6 +52,17 @@ function imagecache_external_admin_form($form, $form_state) {
     '#default_value' => variable_get('imagecache_external_hosts', ''),
   );
   return system_settings_form($form);
+}
+
+function imagecache_external_admin_form_validate($form, $form_state) {
+  $scheme = file_default_scheme();
+  $directory = $scheme . '://' . $form_state['values']['imagecache_directory'];
+  if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+    form_set_error('imagecache_directory', t('The directory %directory does not exist or is not writable.', array(
+      '%directory' => $directory,
+    )));
+    watchdog('imagecache_external', 'The directory %directory does not exist or is not writable.', array('%directory' => $directory), WATCHDOG_ERROR);
+  }
 }
 
 /**

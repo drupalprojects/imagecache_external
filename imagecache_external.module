@@ -2,7 +2,8 @@
 /*
  * @file
  *
- * Allows imagecache to operate on external images
+ * Allows the usage of Image Styles on external images.
+ *
  * @copyright Copyright(c) 2010 Lee Rowlands
  * @license GPL v2 http://www.fsf.org/licensing/licenses/gpl.html
  * @author Lee Rowlands contact at rowlandsgroup dot com
@@ -249,7 +250,7 @@ function imagecache_external_generate_path($url) {
   $hash       = md5($url);
   $filename   = $hash . '.' . substr(strrchr($url,'.'),1);
   $scheme     = file_default_scheme();
-  $directory  = $scheme . '://imagecache/externals';
+  $directory  = $scheme . '://' . variable_get('imagecache_directory', 'externals');
   if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
     if (file_exists($directory. '/' . $filename)) {
       return $directory. '/' . $filename;
@@ -339,7 +340,7 @@ function imagecache_external_module_implements_alter(&$implementations, $hook) {
 function imagecache_external_file_download($uri) {
   // Check if the path contains 'imagecache/external'.
   // If not, we fallback to the Image module.
-  if (strpos($uri, 'imagecache/external') > 0) {
+  if (strpos($uri, '/' . variable_get('imagecache_directory', 'externals') . '/') > 0) {
     $info = image_get_info($uri);
     // For safety, we only allow our own mimetypes.
     if (in_array($info['mime_type'], imagecache_external_allowed_mimetypes())) {
@@ -364,7 +365,7 @@ function imagecache_external_file_download($uri) {
 function imagecache_external_flush_cache() {
   $scheme = file_default_scheme();
   $wrapper= file_stream_wrapper_get_instance_by_scheme($scheme);
-  $path   = realpath($wrapper->getDirectoryPath() . '/imagecache');
+  $path   = realpath($wrapper->getDirectoryPath() . '/' . variable_get('imagecache_directory', 'externals'));
   if (is_dir($path)) {
     if (file_unmanaged_delete_recursive($path)){
       watchdog('imagecache_external', 'Imagecache caches have been flushed');
