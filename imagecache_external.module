@@ -233,7 +233,7 @@ function imagecache_external_theme() {
  * @ingroup themeable
  */
 function theme_imagecache_external($variables) {
-  if ($variables['path'] = imagecache_external_generate_path($variables['path'], $variables['style_name'])) {
+  if ($variables['path'] = imagecache_external_generate_path($variables['path'])) {
     return theme('image_style', $variables);
   }
   return FALSE;
@@ -292,6 +292,7 @@ function imagecache_external_fetch($url, $cachepath) {
     watchdog('imagecache_external', 'The image %url could not be retrieved, it did not meet the black/white list requirements.', array('%url' => $url));
     return FALSE;
   }
+
   if (!user_access('Fetch external images')) {
     watchdog('imagecache_external', 'The image %url could not be retrieved, the user does not have permission to fetch external images.', array('%url' => $url));
     return FALSE;

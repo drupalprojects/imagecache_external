@@ -1,0 +1,133 @@
+<?php
+/**
+ * @file
+ * Tests for Imagecache External.
+ */
+
+/**
+ * Tests the functions for working with public/private file schemes.
+ */
+class ImagecacheExternalFileSchemesTestCase extends DrupalWebTestCase {
+
+  protected $external_image_uri;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Public/Private File Schemes',
+      'description' => 'Test Imagecache External on Public and Private file schemes.',
+      'group' => 'Imagecache External',
+    );
+  }
+  function setUp() {
+    parent::setUp(array('imagecache_external'));
+    $this->external_image_uri = 'https://drupal.org/files/druplicon.large_.png';
+  }
+
+  /**
+   * Test caching an external image.
+   */
+  function testCachingExternalImage() {
+    $local_image_uri = imagecache_external_generate_path($this->external_image_uri);
+    $local_image_url = file_create_url($local_image_uri);
+
+    $this->drupalGet($local_image_url);
+    $this->assertResponse(200, t('Image was cached at the URL %image.', array('%image' => $local_image_url)));
+  }
+
+  /**
+   * Test caching an external image with style using the public:// scheme.
+   */
+  function testCachingExternalImageWithImageStylePublic() {
+    $this->_testCachingExternalImageWithImageStyle('public');
+  }
+
+  /**
+   * Test caching an external image with style using the private:// scheme.
+   */
+  function testCachingExternalImageWithImageStylePrivate() {
+    $this->_testCachingExternalImageWithImageStyle('private');
+  }
+
+  /**
+   * Test caching an external image with an image style.
+   */
+  function _testCachingExternalImageWithImageStyle($scheme) {
+    $style = image_style_save(array('name' => rand()));
+    variable_set('file_default_scheme', $scheme);
+    $local_image_uri = imagecache_external_generate_path($this->external_image_uri);
+    $local_image_url = image_style_url($style['name'], $local_image_uri);
+
+    // Check if we can access the generated image.
+    $this->drupalGet($local_image_url);
+    $this->assertResponse(200, t('Image can be reached on %url', array('%url' => $local_image_url)));
+
+    // Check if the theme function works as expected.
+    $img_tag = theme_imagecache_external(array(
+      'style_name' => $style['name'],
+      'path' => $this->external_image_uri,
+      'alt' => 'Drupal logo',
+      'width' => 20,
+      'height' => 20,
+    ));
+    $expected_tag = '<img typeof="foaf:Image" src="' . check_plain($local_image_url) . '" width="20" height="20" alt="Drupal logo" />';
+    $this->assertEqual($img_tag, $expected_tag, t('Expected img tag %tag was found on the %scheme filesystem.', array(
+      '%tag' => $expected_tag,
+      '%scheme' => $scheme,
+    )));
+  }
+}
+
+/**
+ * Tests the functions for working with whitelist/blacklist.
+ */
+class ImagecacheExternalWhitelistBlacklistTestCase extends DrupalWebTestCase {
+
+  protected $external_image_uri;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Whitelist/Blacklist',
+      'description' => 'Test Imagecache External using whitelists and blacklists.',
+      'group' => 'Imagecache External',
+    );
+  }
+
+  function setUp() {
+    parent::setUp(array('imagecache_external'));
+    $this->external_image_uri = 'https://drupal.org/files/druplicon.large_.png';
+  }
+
+  /**
+   * Test caching an external image using the whitelist.
+   */
+  function testCachingExternalImageUsingWhitelist() {
+    variable_set('imagecache_external_option', 'white');
+    variable_set('imagecache_external_hosts', 'drupal.org');
+
+    $succeeded = FALSE;
+    if ($path = imagecache_external_generate_path($this->external_image_uri)) {
+      $succeeded = TRUE;
+    }
+    $this->assertTrue($succeeded, t('Image %original was cached at the URL %uri using the whitelist set to drupal.org.', array(
+      '%original' => $this->external_image_uri,
+      '%uri' => file_create_url($path),
+    )));
+  }
+
+  /**
+   * Test caching an external image using the blacklist.
+   */
+  function testCachingExternalImageUsingBlacklist() {
+    variable_set('imagecache_external_option', 'black');
+    variable_set('imagecache_external_hosts', 'drupal.org');
+
+    $succeeded = FALSE;
+    if (imagecache_external_generate_path($this->external_image_uri)) {
+      $succeeded = TRUE;
+    }
+    $this->assertFalse($succeeded, t('Image at %url was prevented from caching using the blacklist set to drupal.org.', array(
+      '%url' => $this->external_image_uri,
+    )));
+  }
+
+}
