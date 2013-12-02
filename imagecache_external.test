@@ -20,6 +20,12 @@ class ImagecacheExternalFileSchemesTestCase extends DrupalWebTestCase {
   }
   function setUp() {
     parent::setUp(array('imagecache_external'));
+
+    // Login as a normal user.
+    $user = $this->drupalCreateUser(array('access content'));
+    $this->drupalLogin($user);
+
+    // Set a default image url.
     $this->external_image_uri = 'https://drupal.org/files/druplicon.large_.png';
   }
 
