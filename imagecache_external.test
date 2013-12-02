@@ -103,15 +103,6 @@ class ImagecacheExternalWhitelistBlacklistTestCase extends DrupalWebTestCase {
   function testCachingExternalImageUsingWhitelist() {
     variable_set('imagecache_external_option', 'white');
     variable_set('imagecache_external_hosts', 'drupal.org');
-
-    $succeeded = FALSE;
-    if ($path = imagecache_external_generate_path($this->external_image_uri)) {
-      $succeeded = TRUE;
-    }
-    $this->assertTrue($succeeded, t('Image %original was cached at the URL %uri using the whitelist set to drupal.org.', array(
-      '%original' => $this->external_image_uri,
-      '%uri' => file_create_url($path),
-    )));
   }
 
   /**
@@ -120,14 +111,48 @@ class ImagecacheExternalWhitelistBlacklistTestCase extends DrupalWebTestCase {
   function testCachingExternalImageUsingBlacklist() {
     variable_set('imagecache_external_option', 'black');
     variable_set('imagecache_external_hosts', 'drupal.org');
-
-    $succeeded = FALSE;
-    if (imagecache_external_generate_path($this->external_image_uri)) {
-      $succeeded = TRUE;
-    }
-    $this->assertFalse($succeeded, t('Image at %url was prevented from caching using the blacklist set to drupal.org.', array(
-      '%url' => $this->external_image_uri,
-    )));
   }
 
+}
+
+/**
+ * Tests the functions for working with the managed/unmanaged file system.
+ */
+class ImagecacheExternalManagedUnmanagedTestCase extends DrupalWebTestCase {
+
+  protected $external_image_uri;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Managed/Unmanaged File System',
+      'description' => 'Test Imagecache External using the (un)managed file system.',
+      'group' => 'Imagecache External',
+    );
+  }
+
+  function setUp() {
+    parent::setUp(array('imagecache_external'));
+    $this->external_image_uri = 'https://drupal.org/files/druplicon.large_.png';
+  }
+
+  /**
+   * Test caching an external image using the managed file system.
+   */
+  function testCachingExternalImageUsingManagedFileSystem() {
+    variable_set('imagecache_external_management', 'managed');
+
+    if ($path = imagecache_external_generate_path($this->external_image_uri)) {
+      $query = db_select('file_managed', 'f')
+        ->fields('f', array('fid'))
+        ->condition('uri', $path)
+        ->execute()
+        ->fetchCol();
+      $fid = array_shift($query);
+
+      $this->assertTrue(!empty($fid), t('Image %original was cached in the managed filesystem with file ID %fid.', array(
+        '%fid' => $fid,
+        '%original' => $this->external_image_uri,
+      )));
+    }
+  }
 }
