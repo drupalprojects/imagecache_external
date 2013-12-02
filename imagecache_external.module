@@ -308,11 +308,11 @@ function imagecache_external_fetch($url, $cachepath) {
   $types  = imagecache_external_allowed_mimetypes();
   if (isset($result->data) && $result->data && $code != 400 && $code != 500 && in_array($result->headers['content-type'], $types)) {
     if (variable_get('imagecache_external_management', 'unmanaged') == 'unmanaged') {
-      $file = file_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
-      return $file->uri;
+      return file_unmanaged_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
     }
     else {
-      return file_unmanaged_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
+      $file = file_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
+      return $file->uri;
     }
   }
   else {
