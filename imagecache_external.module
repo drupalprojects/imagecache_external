@@ -247,10 +247,16 @@ function theme_imagecache_external($variables) {
  */
 function imagecache_external_generate_path($url) {
   // Create the extenal images directory and ensure it's writable.
-  $hash       = md5($url);
-  $filename   = $hash . '.' . substr(strrchr($url,'.'),1);
-  $scheme     = file_default_scheme();
-  $directory  = $scheme . '://' . variable_get('imagecache_directory', 'externals');
+  $hash = md5($url);
+  $filename = $hash;
+  // Add the extension for real images.
+  if ($extension = pathinfo($url, PATHINFO_EXTENSION)) {
+    if (in_array($extension, array('jpg', 'png', 'gif'))) {
+      $filename .= '.' . $extension;
+    }
+  }
+  $scheme = file_default_scheme();
+  $directory = $scheme . '://' . variable_get('imagecache_directory', 'externals');
   if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
     if (file_exists($directory. '/' . $filename)) {
       return $directory. '/' . $filename;
