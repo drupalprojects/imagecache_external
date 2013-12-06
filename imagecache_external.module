@@ -281,8 +281,9 @@ function imagecache_external_fetch($url, $cachepath) {
     return FALSE;
   }
   // Extract hostname from url.
-  $parsed_url = parse_url($url);
-  $host = $parsed_url['host'];
+  if (!($host = parse_url($url, PHP_URL_HOST))) {
+    return FALSE;
+  }
 
   $list = preg_split('/\s+/', variable_get('imagecache_external_hosts', ''));
 
