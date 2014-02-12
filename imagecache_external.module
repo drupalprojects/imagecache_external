@@ -392,6 +392,7 @@ function imagecache_external_flush_cache() {
  */
 function imagecache_external_allowed_mimetypes() {
   return array(
+    'image/jpg',
     'image/jpeg',
     'image/png',
     'image/gif',
