@@ -307,7 +307,10 @@ function imagecache_external_fetch($url, $cachepath) {
   $result = drupal_http_request($url);
   $code   = floor($result->code / 100) * 100;
   $types  = imagecache_external_allowed_mimetypes();
-  if (isset($result->data) && $result->data && $code != 400 && $code != 500 && in_array(strtolower($result->headers['content-type']), $types)) {
+
+  // If content-type not set, use the default 'application/octet-stream'.
+  $response_mimetype = isset($result->headers['content-type']) ? strtolower($result->headers['content-type']) : 'application/octet-stream';
+  if (!empty($result->data) && $code != 400 && $code != 500 && in_array($response_mimetype, $types)) {
     if (variable_get('imagecache_external_management', 'unmanaged') == 'unmanaged') {
       return file_unmanaged_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
     }
@@ -383,6 +386,7 @@ function imagecache_external_flush_cache() {
   }
 }
 
+
 /**
  * Helper function to return the mimetypes that are allowed for
  * external caching.
@@ -391,13 +395,12 @@ function imagecache_external_flush_cache() {
  *   An array of mimetypes.
  */
 function imagecache_external_allowed_mimetypes() {
-  return array(
+  return variable_get('imagecache_external_allowed_mimetypes', array(
     'image/jpg',
     'image/jpeg',
     'image/jpeg;charset=utf-8',
     'image/png',
     'image/gif',
     'application/octet-stream',
-  );
+  ));
 }
-
