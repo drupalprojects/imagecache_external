@@ -310,7 +310,15 @@ function imagecache_external_fetch($url, $cachepath) {
 
   // If content-type not set, use the default 'application/octet-stream'.
   $response_mimetype = isset($result->headers['content-type']) ? strtolower($result->headers['content-type']) : 'application/octet-stream';
-  if (!empty($result->data) && $code != 400 && $code != 500 && in_array($response_mimetype, $types)) {
+
+  // Explode content-type to handle mimetypes with more than one
+  // property (eg. image/jpeg;charset=UTF-8).
+  $content_type_array = explode(';', $response_mimetype);
+  $content_type_allowed = FALSE;
+  foreach ($content_type_array as $content_type) {
+    if (in_array(strtolower($content_type), $types)) $content_type_allowed = TRUE;
+  }
+  if (!empty($result->data) && $code != 400 && $code != 500 && $content_type_allowed) {
     if (variable_get('imagecache_external_management', 'unmanaged') == 'unmanaged') {
       return file_unmanaged_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
     }
