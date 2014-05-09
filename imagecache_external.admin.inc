@@ -1,12 +1,7 @@
 <?php
-/*
+/**
  * @file
- *
  * Admin forms for this module.
- *
- * @copyright Copyright(c) 2010 Lee Rowlands
- * @license GPL v2 http://www.fsf.org/licensing/licenses/gpl.html
- * @author Lee Rowlands contact at rowlandsgroup dot com
  */
 
 /**
@@ -54,13 +49,14 @@ function imagecache_external_admin_form($form, $form_state) {
   return system_settings_form($form);
 }
 
+/**
+ * Validate callback for the admin form.
+ */
 function imagecache_external_admin_form_validate($form, $form_state) {
   $scheme = file_default_scheme();
   $directory = $scheme . '://' . $form_state['values']['imagecache_directory'];
   if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
-    form_set_error('imagecache_directory', t('The directory %directory does not exist or is not writable.', array(
-      '%directory' => $directory,
-    )));
+    form_set_error('imagecache_directory', t('The directory %directory does not exist or is not writable.', array('%directory' => $directory)));
     watchdog('imagecache_external', 'The directory %directory does not exist or is not writable.', array('%directory' => $directory), WATCHDOG_ERROR);
   }
 }

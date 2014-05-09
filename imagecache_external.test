@@ -24,7 +24,18 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
   function setUp() {
     parent::setUp(array('imagecache_external', 'text'));
 
-    $this->admin_user = $this->drupalCreateUser(array('Fetch external images', 'access content', 'access administration pages', 'administer site configuration', 'administer content types', 'administer nodes', 'create article content', 'edit any article content', 'delete any article content', 'administer image styles'));
+    $this->admin_user = $this->drupalCreateUser(array(
+      'Fetch external images',
+      'access content',
+      'access administration pages',
+      'administer site configuration',
+      'administer content types',
+      'administer nodes',
+      'create article content',
+      'edit any article content',
+      'delete any article content',
+      'administer image styles',
+    ));
     $this->drupalLogin($this->admin_user);
 
     // // Login as a normal user.
