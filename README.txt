@@ -16,10 +16,6 @@ INSTALLATION
 ========================
 CONFIGURATION
 ------------------------
-The module's default configuration is very restrictive. Exclude admin user
-or users with the 'Bypass black/white list' permission - the default
-configuration of the module is to deny all requests to fetch external images.
-
 To get the module to work, you need to visit
 admin/config/media/imagecache_external and either:
 

@@ -25,7 +25,6 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
     parent::setUp(array('imagecache_external', 'text'));
 
     $this->admin_user = $this->drupalCreateUser(array(
-      'Fetch external images',
       'access content',
       'access administration pages',
       'administer site configuration',
@@ -39,7 +38,7 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->admin_user);
 
     // // Login as a normal user.
-    // $user = $this->drupalCreateUser(array('access content', 'Fetch external images'));
+    // $user = $this->drupalCreateUser(array('access content'));
     // $this->drupalLogin($user);
 
     // Set a default image url.
