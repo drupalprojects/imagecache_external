@@ -118,7 +118,7 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
     $this->createTextField($field_name, 'article');
     $instance = field_info_instance('node', $field_name, 'article');
     $instance['display']['default']['type'] = 'imagecache_external_image';
-    $instance['display']['default']['settings']['image_style'] = 'large';
+    $instance['display']['default']['settings']['imagecache_external_style'] = 'large';
     field_update_instance($instance);
 
     // Create a new node with an image attached.
@@ -127,11 +127,13 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
 
     // Test that image is displayed using newly created style.
     $this->drupalGet('node/' . $nid);
-    $img_tag = theme_imagecache_external(array(
+    $img_tag = theme('imagecache_external', array(
       'style_name' => 'large',
       'path' => $this->external_image_uri,
+      'width' => 420,
+      'height' => 480,
     ));
-    $this->assertRaw($img_tag, t('Image was sucessfully cached.'));
+    $this->assertRaw($img_tag, t('Image was successfully cached as %path.', array('%path' => $img_tag)));
   }
 
   /**
