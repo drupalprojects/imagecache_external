@@ -25,6 +25,13 @@ function imagecache_external_requirements($phase) {
         'severity' => REQUIREMENT_WARNING,
       );
     }
+    else {
+      $requirements['imagecache_external'] = array(
+        'title' => $t('Imagecache External'),
+        'value' => $t('Properly configured'),
+        'severity' => REQUIREMENT_OK,
+      );
+    }
   }
 
   return $requirements;
