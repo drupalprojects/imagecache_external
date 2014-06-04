@@ -186,15 +186,6 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Test caching an external image using the blacklist.
-   */
-  function testCachingExternalImageUsingBlacklist() {
-    variable_set('imagecache_external_option', 'black');
-    variable_set('imagecache_external_hosts', 'drupal.org');
-    $this->testCachingExternalImage();
-  }
-
-  /**
    * Test caching an external image using the managed file system.
    */
   function testCachingExternalImageUsingManagedFileSystem() {

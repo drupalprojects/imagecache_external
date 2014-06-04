@@ -20,7 +20,7 @@ To get the module to work, you need to visit
 admin/config/media/imagecache_external and either:
 
  - Add some domains to the whitelist -or-
- - Switch the mode of operation from whitelist to blacklist
+ - De-activate whitelist functionality
 
 
 ========================

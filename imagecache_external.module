@@ -181,7 +181,6 @@ function imagecache_external_field_formatter_view($entity_type, $entity, $field,
       '#path' => isset($uri) ? $uri : '',
     );
   }
-
   return $element;
 }
 
@@ -269,7 +268,7 @@ function imagecache_external_generate_path($url) {
  *   The directory where to save the images within the files directory.
  */
 function imagecache_external_fetch($url, $cachepath) {
-  // Validate the image URL against the white-/blacklist.
+  // Validate the image URL against the whitelist.
   if (imagecache_external_validate_host($url) === FALSE) {
     return FALSE;
   }
@@ -307,7 +306,7 @@ function imagecache_external_fetch($url, $cachepath) {
 }
 
 /**
- * Helper function to validate the image host against the white-/blacklist.
+ * Helper function to validate the image host against the whitelist.
  *
  * @param  String $url The URL of the image.
  * @return Boolean Can the image be fetched or not?]
@@ -320,15 +319,11 @@ function imagecache_external_validate_host($url) {
 
   $list = preg_split('/\s+/', variable_get('imagecache_external_hosts', ''));
 
-  // Check if the list is set as a blacklist and the host is in the list or if
-  // the list is set as a whitelist and the host is not found in the list. Note
-  // that this is retrospective; a previously downloaded image can be blocked.
-  if ((variable_get('imagecache_external_option', 'white') == 'black' &&
-      preg_grep('/\.?' . $host . '/', $list)) ||
-      (variable_get('imagecache_external_option', 'white') == 'white' &&
-       !preg_grep('/\.?' . $host . '/', $list))) {
+  // Check if a whitelist is used and if the host is in the list.
+  if (variable_get('imagecache_external_use_whitelist', TRUE) &&
+       !preg_grep('/\.?' . $host . '/', $list)) {
     // If we are unsuccessful then log a message in watchdog.
-    watchdog('imagecache_external', 'The image %url could not be retrieved, it did not meet the black/white list requirements.', array('%url' => $url));
+    watchdog('imagecache_external', 'The image %url could not be retrieved, it did not meet the whitelist requirements.', array('%url' => $url));
     return FALSE;
   }
 
@@ -394,7 +389,6 @@ function imagecache_external_flush_cache() {
     return FALSE;
   }
 }
-
 
 /**
  * Helper function that returns allowed mimetypes for external caching.

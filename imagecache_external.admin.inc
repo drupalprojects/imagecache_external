@@ -29,15 +29,11 @@ function imagecache_external_admin_form($form, $form_state) {
     '#default_value' => variable_get('imagecache_external_management', 'unmanaged'),
   );
 
-  $form['imagecache_external_option'] = array(
-    '#type' => 'radios',
-    '#title' => t('Hosts list option'),
-    '#description' => t('Choose the method to filter external urls (note admin user is not affected)'),
-    '#options' => array(
-      'black' => t('Blacklist: Only deny images from the listed hosts.'),
-      'white' => t('Whitelist: Deny all images <b>except</b> the listed hosts.'),
-    ),
-    '#default_value' => variable_get('imagecache_external_option', 'white'),
+  $form['imagecache_external_use_whitelist'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use whitelist'),
+    '#description' => t('By default, all images are blocked except for images served from white-listed hosts. You can define hosts below.'),
+    '#default_value' => variable_get('imagecache_external_use_whitelist', TRUE),
   );
 
   $form['imagecache_external_hosts'] = array(
@@ -45,6 +41,11 @@ function imagecache_external_admin_form($form, $form_state) {
     '#title' => t('Imagecache External hosts'),
     '#description' => t('Add one host per line. Ex: www.flickr.com'),
     '#default_value' => variable_get('imagecache_external_hosts', ''),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="imagecache_external_use_whitelist"]' => array('checked' => TRUE),
+      ),
+    ),
   );
   return system_settings_form($form);
 }
