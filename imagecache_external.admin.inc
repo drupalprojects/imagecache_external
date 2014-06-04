@@ -39,7 +39,7 @@ function imagecache_external_admin_form($form, $form_state) {
   $form['imagecache_external_hosts'] = array(
     '#type' => 'textarea',
     '#title' => t('Imagecache External hosts'),
-    '#description' => t('Add one host per line. Ex: www.flickr.com'),
+    '#description' => t('Add one host per line. You can use top-level domains to whitelist subdomains. Ex: staticflickr.com to whitelist farm1.staticflickr.com and farm2.staticflickr.com'),
     '#default_value' => variable_get('imagecache_external_hosts', ''),
     '#states' => array(
       'visible' => array(
