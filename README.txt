@@ -1,17 +1,8 @@
 ========================
 ABOUT
 ------------------------
-Imagecache External is a utility module that allows you to programatically
-process external images through image styles.
-
-
-========================
-INSTALLATION
-------------------------
-  1. Extract the module to sites/all/modules or sites/xx/modules depending on
-     whether or not you have a multisite installation.
-  2. Enable the module at admin/modules or use drush.
-
+Imagecache External is a utility module that allows you to store external
+images on your server and apply your own imagecache (D6) / Image Styles (D7).
 
 ========================
 CONFIGURATION
@@ -33,8 +24,19 @@ admin/config/media/imagecache_external and either:
   print theme('imagecache_external', array(
     'path' => 'https://drupal.org/files/druplicon.large_.png',
     'style_name'=> 'thumbnail',
-    'alt' => 'Drupalicon'
+    'alt' => 'Druplicon'
   ));
+
+or, in a render array, like this:
+
+<?php
+  return array(
+    '#theme' => 'imagecache_external',
+    '#path' => 'https://drupal.org/files/druplicon.large_.png',
+    '#style_name' => 'thumbnail',
+    '#alt' => 'Druplicon',
+  );
+?>
 
 You can also use external images without coding at all by adding an Text or
 Link field to a Node Type and then use the Imagecache External Image formatter.
