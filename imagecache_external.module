@@ -238,14 +238,22 @@ function imagecache_external_generate_path($url) {
   // Create the extenal images directory and ensure it's writable.
   $hash = md5($url);
   $filename = $hash;
+
+  // Check if this is a non-standard file stream and adjust accordingly.
+  $scheme = file_uri_scheme($url);
+  if ($scheme != 'http' && $scheme != 'https') {
+    // Obtain the "real" URL to this file.
+    $url = drupal_realpath($url);
+  }
+
   // Add the extension for real images.
   if ($extension = pathinfo($url, PATHINFO_EXTENSION)) {
     if (in_array($extension, array('jpg', 'png', 'gif'))) {
       $filename .= '.' . $extension;
     }
   }
-  $scheme = file_default_scheme();
-  $directory = $scheme . '://' . variable_get('imagecache_directory', 'externals');
+  $default_scheme = file_default_scheme();
+  $directory = $default_scheme . '://' . variable_get('imagecache_directory', 'externals');
   if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
     if (file_exists($directory . '/' . $filename)) {
       return $directory . '/' . $filename;
