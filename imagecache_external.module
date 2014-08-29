@@ -246,12 +246,16 @@ function imagecache_external_generate_path($url) {
     $url = drupal_realpath($url);
   }
 
+  // Parse the url to get the path components.
+  $url_parameters = drupal_parse_url($url);
+
   // Add the extension for real images.
-  if ($extension = pathinfo($url, PATHINFO_EXTENSION)) {
+  if ($extension = pathinfo($url_parameters['path'], PATHINFO_EXTENSION)) {
     if (in_array($extension, array('jpg', 'png', 'gif'))) {
       $filename .= '.' . $extension;
     }
   }
+
   $default_scheme = file_default_scheme();
   $directory = $default_scheme . '://' . variable_get('imagecache_directory', 'externals');
   if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
