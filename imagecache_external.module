@@ -292,6 +292,19 @@ function imagecache_external_fetch($url, $cachepath) {
   // If content-type not set, use the default 'application/octet-stream'.
   $response_mimetype = isset($result->headers['content-type']) ? strtolower($result->headers['content-type']) : 'application/octet-stream';
 
+  // Add extension to the cached file to allow file_entity to use it for
+  // mimetype identification.
+  $cachepath_ext = pathinfo($cachepath, PATHINFO_EXTENSION);
+  if (!$cachepath_ext) {
+    require_once DRUPAL_ROOT . '/includes/file.mimetypes.inc';
+    $map = file_mimetype_mapping();
+    $mimetype_id = array_search($response_mimetype, $map['mimetypes']);
+    if ($mimetype_id !== FALSE) {
+      $cachepath_ext = array_search($mimetype_id, $map['extensions']);
+      $cachepath .= $cachepath_ext ? '.' . $cachepath_ext : '';
+    }
+  }
+
   // Explode content-type to handle mimetypes with more than one
   // property (eg. image/jpeg;charset=UTF-8).
   $content_type_array = explode(';', $response_mimetype);
@@ -320,8 +333,11 @@ function imagecache_external_fetch($url, $cachepath) {
 /**
  * Helper function to validate the image host against the whitelist.
  *
- * @param  String $url The URL of the image.
- * @return Boolean Can the image be fetched or not?]
+ * @param String $url
+ *   The URL of the image.
+ *
+ * @return Boolean
+ *   Can the image be fetched or not?
  */
 function imagecache_external_validate_host($url) {
   // Extract the hostname from the url.
