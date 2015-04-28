@@ -205,7 +205,7 @@ function imagecache_external_theme() {
 /**
  * Returns HTML for an image using a specific image style.
  *
- * @param Array $variables
+ * @param array $variables
  *   An associative array containing:
  *   - style_name: The name of the style to be used to alter the original image.
  *   - path: The path of the image file relative to the Drupal files directory.
@@ -228,11 +228,11 @@ function theme_imagecache_external($variables) {
 /**
  * Util to generate a path to an image.
  *
- * @param String $url
- *   The url to the image
+ * @param string $url
+ *   The url to the image.
  *
- * @return String
- *   The url to the image
+ * @return string
+ *   The url to the image.
  */
 function imagecache_external_generate_path($url) {
   // Create the extenal images directory and ensure it's writable.
@@ -274,9 +274,9 @@ function imagecache_external_generate_path($url) {
 /**
  * Api function to fetch a url.
  *
- * @param String $url
+ * @param string $url
  *   The url to fetch.
- * @param String $cachepath
+ * @param string $cachepath
  *   The directory where to save the images within the files directory.
  */
 function imagecache_external_fetch($url, $cachepath) {
@@ -333,10 +333,10 @@ function imagecache_external_fetch($url, $cachepath) {
 /**
  * Helper function to validate the image host against the whitelist.
  *
- * @param String $url
+ * @param string $url
  *   The URL of the image.
  *
- * @return Boolean
+ * @return boolean
  *   Can the image be fetched or not?
  */
 function imagecache_external_validate_host($url) {
@@ -385,7 +385,7 @@ function imagecache_external_module_implements_alter(&$implementations, $hook) {
  * When using the private file system, we have to let Drupal know it's OK to
  * download images from our Imagecache External directory.
  *
- * @return Array
+ * @return array
  *   An array keyed with HTTP Headers.
  */
 function imagecache_external_file_download($uri) {
@@ -410,7 +410,7 @@ function imagecache_external_file_download($uri) {
 /**
  * Helper function to flush caches.
  *
- * @return Boolean
+ * @return boolean
  *   A Boolean value to indicate that the operation succeeded.
  */
 function imagecache_external_flush_cache() {
@@ -429,7 +429,7 @@ function imagecache_external_flush_cache() {
 /**
  * Helper function that returns allowed mimetypes for external caching.
  *
- * @return Array
+ * @return array
  *   The allowed mimetypes.
  */
 function imagecache_external_allowed_mimetypes() {

@@ -10,7 +10,7 @@
 function imagecache_external_requirements($phase) {
   $requirements = array();
 
-  // Ensure translations don't break at install time
+  // Ensure translations don't break at install time.
   $t = get_t();
 
   // Check the Imagecache External configuration.
