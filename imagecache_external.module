@@ -250,10 +250,14 @@ function imagecache_external_generate_path($url) {
   $url_parameters = drupal_parse_url($url);
 
   // Add the extension for real images.
-  if ($extension = pathinfo($url_parameters['path'], PATHINFO_EXTENSION)) {
-    if (in_array($extension, array('jpg', 'png', 'gif'))) {
+  if ($extension = strtolower(pathinfo($url_parameters['path'], PATHINFO_EXTENSION))) {
+    if (in_array($extension, array('jpg', 'png', 'gif', 'jpeg'))) {
       $filename .= '.' . $extension;
     }
+  }
+  else {
+    // Use jpg as default extention.
+    $filename .= '.jpg';
   }
 
   $default_scheme = file_default_scheme();
