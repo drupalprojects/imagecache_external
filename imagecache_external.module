@@ -257,7 +257,7 @@ function imagecache_external_generate_path($url) {
   }
   else {
     // Use jpg as default extention.
-    $filename .= '.jpg';
+    $filename .= variable_get('imagecache_default_extension', '.jpg');
   }
 
   $default_scheme = file_default_scheme();
@@ -299,7 +299,7 @@ function imagecache_external_fetch($url, $cachepath) {
   // Add extension to the cached file to allow file_entity to use it for
   // mimetype identification.
   $cachepath_ext = pathinfo($cachepath, PATHINFO_EXTENSION);
-  if (!$cachepath_ext) {
+  if (!$cachepath_ext && (variable_get('imagecache_default_extension', '.jpg') != '')) {
     require_once DRUPAL_ROOT . '/includes/file.mimetypes.inc';
     $map = file_mimetype_mapping();
     $mimetype_id = array_search($response_mimetype, $map['mimetypes']);
