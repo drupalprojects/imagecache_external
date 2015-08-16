@@ -309,6 +309,8 @@ function imagecache_external_fetch($url, $cachepath) {
     }
   }
 
+  $fallback_image_fid = variable_get('imagecache_fallback_image', '');
+
   // Explode content-type to handle mimetypes with more than one
   // property (eg. image/jpeg;charset=UTF-8).
   $content_type_array = explode(';', $response_mimetype);
@@ -326,6 +328,10 @@ function imagecache_external_fetch($url, $cachepath) {
       $file = file_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
       return $file->uri;
     }
+  }
+  elseif (!empty($fallback_image_fid)) {
+    $fallback_image = file_load($fallback_image_fid);
+    return $fallback_image->uri;
   }
   else {
     // If we are unsuccessful then log a message in watchdog.

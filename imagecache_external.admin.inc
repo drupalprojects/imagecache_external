@@ -56,6 +56,16 @@ function imagecache_external_admin_form($form, $form_state) {
       ),
     ),
   );
+
+  $form['imagecache_fallback_image'] = array(
+    '#type' => 'managed_file',
+    '#name' => 'imagecache_fallback_image',
+    '#title' => t('Fallback image'),
+    '#description' => t("When an external image couldn't be found, use this image as a fallback."),
+    '#default_value' => variable_get('imagecache_fallback_image', ''),
+    '#upload_location' => 'public://'
+  );
+
   return system_settings_form($form);
 }
 
