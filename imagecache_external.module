@@ -256,23 +256,36 @@ function imagecache_external_generate_path($url) {
     }
   }
   else {
-    // Use jpg as default extention.
+    // Use jpg as default extension.
     $filename .= variable_get('imagecache_default_extension', '.jpg');
   }
 
   $default_scheme = file_default_scheme();
   $directory = $default_scheme . '://' . variable_get('imagecache_directory', 'externals');
   if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-    if (file_exists($directory . '/' . $filename)) {
-      return $directory . '/' . $filename;
+    $needs_refresh = FALSE;
+    $filepath = $directory . '/' . $filename;
+    // Allow modules to add custom logic to check if it needs to be re-fetched.
+    drupal_alter('imagecache_external_needs_refresh', $needs_refresh, $filepath);
+    if ($needs_refresh === FALSE) {
+      return $filepath;
     }
-
-    if ($file_uri = imagecache_external_fetch($url, $directory . '/' . $filename)) {
-      return $file_uri;
+    elseif ($filepath = imagecache_external_fetch($url, $directory . '/' . $filename)) {
+      return $filepath;
     }
   }
+
   // We couldn't get the file.
   return FALSE;
+}
+
+/**
+ * Implements hook_imagecache_external_needs_refresh_alter().
+ */
+function imagecache_external_imagecache_external_needs_refresh_alter(&$needs_refresh, $filepath) {
+  if (!file_exists($filepath)) {
+    $needs_refresh = TRUE;
+  }
 }
 
 /**
