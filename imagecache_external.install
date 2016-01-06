@@ -71,4 +71,20 @@ function imagecache_external_update_7102() {
   variable_del('imagecache_external_option');
 }
 
+/**
+ * Fix permission naming when upgrading from older versions and
+ * clean up old permissions.
+ */
+function imagecache_external_update_7103() {
+  db_update('role_permission')
+    ->fields(array(
+      'permission' => 'administer imagecache external'
+    ))
+    ->condition('permission', 'Administer imagecache external', '=')
+    ->execute();
 
+  db_delete('role_permission')
+    ->condition('module', 'imagecache_external', '=')
+    ->condition('permission', 'administer imagecache external', 'NOT LIKE')
+    ->execute();
+}
