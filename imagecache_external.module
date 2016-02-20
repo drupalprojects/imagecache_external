@@ -153,9 +153,26 @@ function imagecache_external_field_formatter_view($entity_type, $entity, $field,
     $link_file = TRUE;
   }
 
+  // Check if the field provides a title.
+  if ($field['type'] == 'link_field') { 
+    if ($instance['settings']['title'] != 'none') {
+      $field_title = TRUE;
+    }
+  }
+
   foreach ($items as $delta => $item) {
+    // Set path and alt text.
+    $image_alt = '';
     if ($field['type'] == 'link_field') {
       $image_path = imagecache_external_generate_path($item['url']);
+      // If present, use the Link field title to provide the alt text.
+      if (isset($field_title)) {
+        // The link field appends the url as title when the title is empty.
+        // We don't want the url in the alt tag, so let's check this. 
+        if ($item['title'] != $item['url']) {
+          $image_alt = isset($field_title) ? $item['title'] : '';
+        }
+      }
     }
     else {
       $image_path = imagecache_external_generate_path($item['value']);
@@ -165,7 +182,7 @@ function imagecache_external_field_formatter_view($entity_type, $entity, $field,
       'uri' => $image_path,
       'width' => $image_info['width'],
       'height' => $image_info['height'],
-      'alt' => '',
+      'alt' => $image_alt,
       'title' => '',
     );
     if (isset($link_file)) {
