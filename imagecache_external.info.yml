@@ -1,0 +1,7 @@
+type: module
+name: Imagecache External
+description: Allows you to fetch external images and use image styles on them.
+dependencies:
+  - image
+core: 8.x
+version: 8.x-1.x
