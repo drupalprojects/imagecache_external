@@ -1,6 +1,0 @@
-name = Imagecache External
-description = Allows you to fetch external images and use image styles on them.
-dependencies[] = image
-files[] = imagecache_external.test
-core = 7.x
-configure = admin/config/media/imagecache_external
