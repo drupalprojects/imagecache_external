@@ -9,7 +9,7 @@ use Drupal\Core\Url;
  * Implements hook_requirements().
  */
 function imagecache_external_requirements($phase) {
-  $config = imagecache_external_config();
+  $config = \Drupal::config('imagecache_external.settings');
   $requirements = array();
 
   // Check the Imagecache External configuration.

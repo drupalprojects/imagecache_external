@@ -50,8 +50,7 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'select',
       '#options' => array(
         '' => 'none',
-        '.jpg' =>
-        'jpg',
+        '.jpg' => 'jpg',
         '.png' => 'png',
         '.gif' => 'gif',
         '.jpeg' => 'jpeg',
