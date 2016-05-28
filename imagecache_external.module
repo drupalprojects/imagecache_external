@@ -161,14 +161,9 @@ function imagecache_external_fetch($url, $cachepath) {
   // Add extension to the cached file to allow file_entity to use it for
   // mimetype identification.
   $cachepath_ext = pathinfo($cachepath, PATHINFO_EXTENSION);
-  if (!$cachepath_ext && ($config->get('imagecache_default_extension') != '')) {
-    require_once DRUPAL_ROOT . '/includes/file.mimetypes.inc';
-    $map = file_mimetype_mapping();
-    $mimetype_id = array_search($response_mimetype, $map['mimetypes']);
-    if ($mimetype_id !== FALSE) {
-      $cachepath_ext = array_search($mimetype_id, $map['extensions']);
-      $cachepath .= $cachepath_ext ? '.' . $cachepath_ext : '';
-    }
+  $default_extension = $config->get('imagecache_default_extension');
+  if (!$cachepath_ext && ($default_extension != '')) {
+    $cachepath .= $default_extension;
   }
 
   $fallback_image_fid = $config->get('imagecache_fallback_image');
