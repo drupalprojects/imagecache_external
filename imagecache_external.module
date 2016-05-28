@@ -179,7 +179,7 @@ function imagecache_external_fetch($url, $cachepath) {
   }
   if (!empty($result->getBody()) && $code != 400 && $code != 500 && $content_type_allowed) {
     if ($config->get('imagecache_external_management') == 'unmanaged') {
-      return file_unmanaged_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
+      return file_unmanaged_save_data($result->getBody(), $cachepath, FILE_EXISTS_REPLACE);
     }
     else {
       $file = file_save_data($result->getBody(), $cachepath, FILE_EXISTS_REPLACE);
