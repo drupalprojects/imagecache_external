@@ -7,6 +7,8 @@
 
 namespace Drupal\imagecache_external\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -130,7 +132,7 @@ class ImagecacheExternalImage extends FormatterBase implements ContainerFactoryP
 
     $link_types = array(
       'content' => t('Linked to content'),
-      'file' => t('Linked to file'),
+      'file' => t('Linked to cached file'),
     );
 
     // Display this setting only if image is linked.
@@ -143,21 +145,22 @@ class ImagecacheExternalImage extends FormatterBase implements ContainerFactoryP
 
   /**
    * {@inheritdoc}
-   *
-   * TODO: fix link functions.
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $settings = $this->getSettings();
+    $elements = [];
     $field = $items->getFieldDefinition();
     $field_settings = $this->getFieldSettings();
-    $elements = [];
 
+    $url = NULL;
+    $image_link_setting = $this->getSetting('imagecache_external_link');
     // Check if the formatter involves a link.
-    if ($settings['imagecache_external_link'] == 'content') {
-      // TODO: convert to D8
-      // $uri = entity_uri($entity_type, $entity).
+    if ($image_link_setting == 'content') {
+      $entity = $items->getEntity();
+      if (!$entity->isNew()) {
+        $url = $entity->toUrl();
+      }
     }
-    elseif ($settings['imagecache_external_link'] == 'file') {
+    elseif ($image_link_setting == 'file') {
       $link_file = TRUE;
     }
 
@@ -172,9 +175,7 @@ class ImagecacheExternalImage extends FormatterBase implements ContainerFactoryP
       // Get field value.
       $values = $item->toArray();
 
-      // Set path and alt text.
       $image_alt = '';
-
       if ($field->getType() == 'link') {
         $image_path = imagecache_external_generate_path($values['uri']);
         // If present, use the Link field title to provide the alt text.
@@ -190,16 +191,40 @@ class ImagecacheExternalImage extends FormatterBase implements ContainerFactoryP
         $image_path = imagecache_external_generate_path($values['value']);
       }
 
+      if (isset($link_file)) {
+        $url = Url::fromUri(file_create_url($image_path));
+      }
+
       $image = $this->imageFactory->get($image_path);
-      $elements[$delta] = array(
-        '#theme' => 'image_style',
-        '#style_name' => $settings['imagecache_external_style'],
+      $imagecache_external_style_settings = $this->getSetting('imagecache_external_style');
+
+      $image_build_base = array(
         '#width' => $image->getWidth(),
         '#height' => $image->getHeight(),
         '#uri' => $image_path,
         '#alt' => $image_alt,
         '#title' => '',
       );
+
+      if (empty($style_settings)) {
+        $image_build = array(
+          '#theme' => 'image',
+        ) + $image_build_base;
+      }
+      else {
+        $image_build = array(
+          '#theme' => 'image_style',
+          '#style_name' => $style_settings,
+        ) + $image_build_base;
+      }
+
+      if ($url) {
+        $rendered_image = render($image_build);
+        $elements[$delta] = Link::fromTextAndUrl($rendered_image, $url)->toRenderable();
+      }
+      else {
+        $elements[$delta] = $image_build;
+      }
 
     }
     return $elements;
