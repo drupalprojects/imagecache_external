@@ -196,7 +196,7 @@ class ImagecacheExternalImage extends FormatterBase implements ContainerFactoryP
       }
 
       $image = $this->imageFactory->get($image_path);
-      $imagecache_external_style_settings = $this->getSetting('imagecache_external_style');
+      $style_settings = $this->getSetting('imagecache_external_style');
 
       $image_build_base = array(
         '#width' => $image->getWidth(),
