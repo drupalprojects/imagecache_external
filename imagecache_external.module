@@ -259,8 +259,8 @@ function imagecache_external_generate_path($url) {
   // Check if this is a non-standard file stream and adjust accordingly.
   $scheme = file_uri_scheme($url);
   if ($scheme != 'http' && $scheme != 'https') {
-    // Obtain the "real" URL to this file.
-    $url = drupal_realpath($url);
+    // Obtain the external URL to this file.
+    $url = file_create_url($url);
   }
 
   // Parse the url to get the path components.
