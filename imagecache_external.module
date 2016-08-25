@@ -340,7 +340,7 @@ function imagecache_external_fetch($url, $cachepath) {
   $types  = imagecache_external_allowed_mimetypes();
 
   // If content-type not set, use the default 'application/octet-stream'.
-  $response_mimetype = isset($result->headers['content-type']) ? strtolower($result->headers['content-type']) : 'application/octet-stream';
+  $response_mimetype = !empty($result->headers['content-type']) ? strtolower($result->headers['content-type']) : 'application/octet-stream';
 
   // Add extension to the cached file to allow file_entity to use it for
   // mimetype identification.
