@@ -502,3 +502,12 @@ function imagecache_external_allowed_mimetypes() {
     'application/octet-stream;charset=utf-8',
   ));
 }
+
+/**
+ * Implements hook_stage_file_proxy_excluded_paths_alter().
+ *
+ * Prevent the Stage File Proxy module, if exists, to fetch external images.
+ */
+function imagecache_external_stage_file_proxy_excluded_paths_alter(array &$excluded_paths, $uri) {
+  $excluded_paths[] = '/' . variable_get('imagecache_directory', 'externals') . '/';
+}
