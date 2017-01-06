@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\imagecache_external\Plugin\Field\FieldFormatter\ImagecacheExternalImage.
- */
-
 namespace Drupal\imagecache_external\Plugin\Field\FieldFormatter;
 
 use Drupal\Core\Link;

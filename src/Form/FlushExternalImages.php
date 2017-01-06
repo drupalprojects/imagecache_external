@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\imagecache_external\Form\FlushExternalImages.
- */
-
 namespace Drupal\imagecache_external\Form;
 
 use Drupal\Core\Form\ConfirmFormBase;
