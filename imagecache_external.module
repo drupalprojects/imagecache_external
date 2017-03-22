@@ -138,20 +138,7 @@ function imagecache_external_fetch($url, $cachepath) {
 
   // Drupal httpClient.
   $http = \Drupal::httpClient();
-
-  // Pass cookies along with HTTP Request.
-  $cookies = '';
-  foreach ($_COOKIE as $key => $value) {
-    $cookies .= $key . '=' . urlencode($value) . ';';
-  }
-  if (!empty($cookies)) {
-    $headers = array('Cookie' => $cookies);
-    $result = $http->request('get', $url, array('headers' => $headers));
-  }
-  else {
-    $result = $http->request('get', $url);
-  }
-
+  $result = $http->request('get', $url);
   $code   = floor($result->getStatusCode() / 100) * 100;
   $types  = imagecache_external_allowed_mimetypes();
 
