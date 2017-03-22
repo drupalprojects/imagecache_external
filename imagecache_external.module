@@ -323,19 +323,7 @@ function imagecache_external_fetch($url, $cachepath) {
     return FALSE;
   }
 
-  // Pass cookies along with HTTP Request.
-  $cookies = '';
-  foreach ($_COOKIE as $key => $value) {
-    $cookies .= $key . '=' . urlencode($value) . ';';
-  }
-  if (!empty($cookies)) {
-    $headers = array('Cookie' => $cookies);
-    $result = drupal_http_request($url, array('headers' => $headers));
-  }
-  else {
-    $result = drupal_http_request($url);
-  }
-
+  $result = drupal_http_request($url);
   $code   = floor($result->code / 100) * 100;
   $types  = imagecache_external_allowed_mimetypes();
 
