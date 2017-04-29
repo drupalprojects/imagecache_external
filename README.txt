@@ -21,21 +21,21 @@ admin/config/media/imagecache_external and either:
  process an image via Imagecache External:
 
  <?php
-  print theme('imagecache_external', array(
+  print theme('imagecache_external', [
     'path' => 'https://drupal.org/files/druplicon.large_.png',
     'style_name'=> 'thumbnail',
     'alt' => 'Druplicon'
-  ));
+  ]);
 
 or, in a render array, like this:
 
 <?php
-  return array(
+  return [
     '#theme' => 'imagecache_external',
     '#path' => 'https://drupal.org/files/druplicon.large_.png',
     '#style_name' => 'thumbnail',
     '#alt' => 'Druplicon',
-  );
+  ];
 ?>
 
 You can also use external images without coding at all by adding an Text or

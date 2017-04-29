@@ -11,20 +11,20 @@ use Drupal\file\Entity\File;
  * Implements hook_theme().
  */
 function imagecache_external_theme() {
-  return array(
+  return [
     // Theme functions in image.module.
-    'imagecache_external' => array(
-      'variables' => array(
+    'imagecache_external' => [
+      'variables' => [
         'style_name' => NULL,
         'uri' => NULL,
         'alt' => '',
         'title' => NULL,
         'width' => NULL,
         'height' => NULL,
-        'attributes' => array(),
-      ),
-    ),
-  );
+        'attributes' => [],
+      ],
+    ],
+  ];
 }
 
 /**
@@ -82,7 +82,7 @@ function imagecache_external_generate_path($url) {
 
   // Add the extension for real images.
   if ($extension = strtolower(pathinfo($url_parameters['path'], PATHINFO_EXTENSION))) {
-    if (in_array($extension, array('jpg', 'png', 'gif', 'jpeg'))) {
+    if (in_array($extension, ['jpg', 'png', 'gif', 'jpeg'])) {
       $filename .= '.' . $extension;
     }
   }
@@ -179,7 +179,7 @@ function imagecache_external_fetch($url, $cachepath) {
   }
   else {
     // If we are unsuccessful then log a message in watchdog.
-    \Drupal::logger('imagecache_external')->notice(t('The image %url could not be retrieved', array('%url' => $url)));
+    \Drupal::logger('imagecache_external')->notice(t('The image %url could not be retrieved', ['%url' => $url]));
     return FALSE;
   }
 }
@@ -213,7 +213,7 @@ function imagecache_external_validate_host($url) {
     }
     if (!$validhost) {
       // If we are unsuccessful then log a message in watchdog.
-      \Drupal::logger('imagecache_external')->notice(t('The image %url could not be retrieved, it did not meet the whitelist requirements.', array('%url' => $url)));
+      \Drupal::logger('imagecache_external')->notice(t('The image %url could not be retrieved, it did not meet the whitelist requirements.', ['%url' => $url]));
       return FALSE;
     }
   }
@@ -247,10 +247,10 @@ function imagecache_external_file_download($uri) {
     $info = image_get_info($uri);
     // For safety, we only allow our own mimetypes.
     if (in_array($info['mime_type'], imagecache_external_allowed_mimetypes())) {
-      return array(
+      return [
         'Content-Type' => $info['mime_type'],
         'Content-Length' => $info['file_size'],
-      );
+      ];
     }
   }
   else {

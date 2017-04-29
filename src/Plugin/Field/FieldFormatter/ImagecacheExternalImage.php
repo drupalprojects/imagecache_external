@@ -66,10 +66,10 @@ class ImagecacheExternalImage extends FormatterBase implements ContainerFactoryP
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return array(
+    return [
       'imagecache_external_style' => '',
       'imagecache_external_link' => '',
-    ) + parent::defaultSettings();
+    ] + parent::defaultSettings();
   }
 
   /**
@@ -80,25 +80,25 @@ class ImagecacheExternalImage extends FormatterBase implements ContainerFactoryP
     $elements = [];
 
     $image_styles = image_style_options(FALSE);
-    $elements['imagecache_external_style'] = array(
+    $elements['imagecache_external_style'] = [
       '#title' => t('Image style'),
       '#type' => 'select',
       '#default_value' => $settings['imagecache_external_style'],
       '#empty_option' => t('None (original image)'),
       '#options' => $image_styles,
-    );
+    ];
 
-    $link_types = array(
+    $link_types = [
       'content' => t('Content'),
       'file' => t('File'),
-    );
-    $elements['imagecache_external_link'] = array(
+    ];
+    $elements['imagecache_external_link'] = [
       '#title' => t('Link image to'),
       '#type' => 'select',
       '#default_value' => $settings['imagecache_external_link'],
       '#empty_option' => t('Nothing'),
       '#options' => $link_types,
-    );
+    ];
 
     return $elements;
   }
@@ -117,18 +117,18 @@ class ImagecacheExternalImage extends FormatterBase implements ContainerFactoryP
     // Styles could be lost because of enabled/disabled modules that defines
     // their styles in code.
     if (isset($image_styles[$settings['imagecache_external_style']])) {
-      $summary[] = t('Image style: @style', array(
+      $summary[] = t('Image style: @style', [
         '@style' => $image_styles[$settings['imagecache_external_style']],
-      ));
+      ]);
     }
     else {
       $summary[] = t('Original image');
     }
 
-    $link_types = array(
+    $link_types = [
       'content' => t('Linked to content'),
       'file' => t('Linked to cached file'),
-    );
+    ];
 
     // Display this setting only if image is linked.
     if (isset($link_types[$settings['imagecache_external_link']])) {
@@ -193,24 +193,24 @@ class ImagecacheExternalImage extends FormatterBase implements ContainerFactoryP
       $image = $this->imageFactory->get($image_path);
       $style_settings = $this->getSetting('imagecache_external_style');
 
-      $image_build_base = array(
+      $image_build_base = [
         '#width' => $image->getWidth(),
         '#height' => $image->getHeight(),
         '#uri' => $image_path,
         '#alt' => $image_alt,
         '#title' => '',
-      );
+      ];
 
       if (empty($style_settings)) {
-        $image_build = array(
+        $image_build = [
           '#theme' => 'image',
-        ) + $image_build_base;
+        ] + $image_build_base;
       }
       else {
-        $image_build = array(
+        $image_build = [
           '#theme' => 'image_style',
           '#style_name' => $style_settings,
-        ) + $image_build_base;
+        ] + $image_build_base;
       }
 
       if ($url) {

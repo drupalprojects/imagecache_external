@@ -14,17 +14,17 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
   protected $web_user;
 
   public static function getInfo() {
-    return array(
+    return [
       'name' => 'Imagecache External Tests',
       'description' => 'Test Imagecache External.',
       'group' => 'Imagecache External',
-    );
+    ];
   }
 
   function setUp() {
-    parent::setUp(array('imagecache_external', 'text'));
+    parent::setUp(['imagecache_external', 'text']);
 
-    $this->admin_user = $this->drupalCreateUser(array(
+    $this->admin_user = $this->drupalCreateUser([
       'access content',
       'access administration pages',
       'administer site configuration',
@@ -34,11 +34,11 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
       'edit any article content',
       'delete any article content',
       'administer image styles',
-    ));
+    ]);
     $this->drupalLogin($this->admin_user);
 
     // // Login as a normal user.
-    // $user = $this->drupalCreateUser(array('access content'));
+    // $user = $this->drupalCreateUser(['access content']);
     // $this->drupalLogin($user);
 
     // Set a default image url.
@@ -59,28 +59,28 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
    * @param $widget_settings
    *   A list of widget settings that will be added to the widget defaults.
    */
-  function createTextField($name, $type_name, $field_settings = array(), $instance_settings = array(), $widget_settings = array()) {
-    $field = array(
+  function createTextField($name, $type_name, $field_settings = [], $instance_settings = [], $widget_settings = []) {
+    $field = [
       'field_name' => $name,
       'type' => 'text',
-      'settings' => array(),
+      'settings' => [],
       'cardinality' => !empty($field_settings['cardinality']) ? $field_settings['cardinality'] : 1,
-    );
+    ];
     $field['settings'] = array_merge($field['settings'], $field_settings);
     field_create_field($field);
 
-    $instance = array(
+    $instance = [
       'field_name' => $field['field_name'],
       'entity_type' => 'node',
       'label' => $name,
       'bundle' => $type_name,
       'required' => !empty($instance_settings['required']),
-      'settings' => array(),
-      'widget' => array(
+      'settings' => [],
+      'widget' => [
         'type' => 'text_textfield',
-        'settings' => array(),
-      ),
-    );
+        'settings' => [],
+      ],
+    ];
     $instance['settings'] = array_merge($instance['settings'], $instance_settings);
     $instance['widget']['settings'] = array_merge($instance['widget']['settings'], $widget_settings);
     return field_create_instance($instance);
@@ -97,14 +97,14 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
    *   The type of node to create.
    */
   function addNodeImage($image_uri, $field_name, $type) {
-    $edit = array(
+    $edit = [
       'title' => $this->randomName(),
       $field_name . '[' . LANGUAGE_NONE . '][0][value]' => $image_uri,
-    );
+    ];
     $this->drupalPost('node/add/' . $type, $edit, t('Save'));
 
     // Retrieve ID of the newly created node from the current URL.
-    $matches = array();
+    $matches = [];
     preg_match('/node\/([0-9]+)/', $this->getUrl(), $matches);
     return isset($matches[1]) ? $matches[1] : FALSE;
   }
@@ -127,13 +127,13 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
 
     // Test that image is displayed using newly created style.
     $this->drupalGet('node/' . $nid);
-    $img_tag = theme('imagecache_external', array(
+    $img_tag = theme('imagecache_external', [
       'style_name' => 'large',
       'path' => $this->external_image_uri,
       'width' => 420,
       'height' => 480,
-    ));
-    $this->assertRaw($img_tag, t('Image was successfully cached as %path.', array('%path' => $img_tag)));
+    ]);
+    $this->assertRaw($img_tag, t('Image was successfully cached as %path.', ['%path' => $img_tag]));
   }
 
   /**
@@ -154,28 +154,28 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
    * Test caching an external image with an image style.
    */
   function _testCachingExternalImageWithImageStyle($scheme) {
-    $style = image_style_save(array('name' => rand()));
+    $style = image_style_save(['name' => rand()]);
     variable_set('file_default_scheme', $scheme);
     $local_image_uri = imagecache_external_generate_path($this->external_image_uri);
     $local_image_url = image_style_url($style['name'], $local_image_uri);
 
     // Check if we can access the generated image.
     $this->drupalGet($local_image_url);
-    $this->assertResponse(200, t('Image can be reached on %url', array('%url' => $local_image_url)));
+    $this->assertResponse(200, t('Image can be reached on %url', ['%url' => $local_image_url]));
 
     // // Check if the theme function works as expected.
-    // $img_tag = theme_imagecache_external(array(
+    // $img_tag = theme_imagecache_external([
     //   'style_name' => $style['name'],
     //   'path' => $this->external_image_uri,
     //   'alt' => 'Drupal logo',
     //   'width' => 20,
     //   'height' => 20,
-    // ));
+    // ]);
     // $expected_tag = '<img typeof="foaf:Image" src="' . check_plain($local_image_url) . '" width="20" height="20" alt="Drupal logo" />';
-    // $this->assertEqual($img_tag, $expected_tag, t('Expected img tag %tag was found on the %scheme filesystem.', array(
+    // $this->assertEqual($img_tag, $expected_tag, t('Expected img tag %tag was found on the %scheme filesystem.', [
     //   '%tag' => $expected_tag,
     //   '%scheme' => $scheme,
-    // )));
+    // ]));
   }
 
   /**
@@ -195,16 +195,16 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
 
     if ($path = imagecache_external_generate_path($this->external_image_uri)) {
       $query = db_select('file_managed', 'f')
-        ->fields('f', array('fid'))
+        ->fields('f', ['fid'])
         ->condition('uri', $path)
         ->execute()
         ->fetchCol();
       $fid = array_shift($query);
 
-      $this->assertTrue(!empty($fid), t('Image %original was cached in the managed filesystem with file ID %fid.', array(
+      $this->assertTrue(!empty($fid), t('Image %original was cached in the managed filesystem with file ID %fid.', [
         '%fid' => $fid,
         '%original' => $this->external_image_uri,
-      )));
+      ]));
     }
   }
 }
