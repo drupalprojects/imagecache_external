@@ -154,7 +154,7 @@ function imagecache_external_field_formatter_view($entity_type, $entity, $field,
   }
 
   // Check if the field provides a title.
-  if ($field['type'] == 'link_field') { 
+  if ($field['type'] == 'link_field') {
     if ($instance['settings']['title'] != 'none') {
       $field_title = TRUE;
     }
@@ -168,7 +168,7 @@ function imagecache_external_field_formatter_view($entity_type, $entity, $field,
       // If present, use the Link field title to provide the alt text.
       if (isset($field_title)) {
         // The link field appends the url as title when the title is empty.
-        // We don't want the url in the alt tag, so let's check this. 
+        // We don't want the url in the alt tag, so let's check this.
         if ($item['title'] != $item['url']) {
           $image_alt = isset($field_title) ? $item['title'] : '';
         }
@@ -247,11 +247,13 @@ function theme_imagecache_external($variables) {
  *
  * @param string $url
  *   The url to the image.
+ * @param bool $force_refresh
+ *   Whether to refresh the cached image.
  *
  * @return string
  *   The url to the image.
  */
-function imagecache_external_generate_path($url) {
+function imagecache_external_generate_path($url, $force_refresh = FALSE) {
   // Create the extenal images directory and ensure it's writable.
   $hash = md5($url);
   $filename = $hash;
@@ -288,7 +290,7 @@ function imagecache_external_generate_path($url) {
     $filepath = $directory . '/' . $filename;
     // Allow modules to add custom logic to check if it needs to be re-fetched.
     drupal_alter('imagecache_external_needs_refresh', $needs_refresh, $filepath);
-    if ($needs_refresh === FALSE) {
+    if ($needs_refresh === FALSE && $force_refresh === FALSE) {
       return $filepath;
     }
     elseif ($filepath = imagecache_external_fetch($url, $directory . '/' . $filename)) {
