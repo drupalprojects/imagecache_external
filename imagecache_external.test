@@ -9,7 +9,7 @@
  */
 class ImagecacheExternalTestCase extends DrupalWebTestCase {
 
-  protected $external_image_uri;
+  protected $external_image;
   protected $admin_user;
   protected $web_user;
 
@@ -41,8 +41,11 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
     // $user = $this->drupalCreateUser(array('access content'));
     // $this->drupalLogin($user);
 
-    // Set a default image url.
-    $this->external_image_uri = 'https://drupal.org/files/druplicon.large_.png';
+    // Set an external image to use for testing.
+    $test_images = $this->drupalGetTestFiles('image');
+    $this->external_image = (array) array_shift($test_images);
+    $this->external_image += image_get_info($this->external_image['uri']);
+    $this->external_image['url'] = file_create_url($this->external_image['uri']);
   }
 
   /**
@@ -122,16 +125,16 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
     field_update_instance($instance);
 
     // Create a new node with an image attached.
-    $nid = $this->addNodeImage($this->external_image_uri, $field_name, 'article');
+    $nid = $this->addNodeImage($this->external_image['url'], $field_name, 'article');
     $node = node_load($nid);
 
     // Test that image is displayed using newly created style.
     $this->drupalGet('node/' . $nid);
     $img_tag = theme('imagecache_external', array(
       'style_name' => 'large',
-      'path' => $this->external_image_uri,
-      'width' => 420,
-      'height' => 480,
+      'path' => $this->external_image['url'],
+      'width' => $this->external_image['width'],
+      'height' => $this->external_image['height'],
     ));
     $this->assertRaw($img_tag, t('Image was successfully cached as %path.', array('%path' => $img_tag)));
   }
@@ -156,7 +159,7 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
   function _testCachingExternalImageWithImageStyle($scheme) {
     $style = image_style_save(array('name' => rand()));
     variable_set('file_default_scheme', $scheme);
-    $local_image_uri = imagecache_external_generate_path($this->external_image_uri);
+    $local_image_uri = imagecache_external_generate_path($this->external_image['url']);
     $local_image_url = image_style_url($style['name'], $local_image_uri);
 
     // Check if we can access the generated image.
@@ -166,7 +169,7 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
     // // Check if the theme function works as expected.
     // $img_tag = theme_imagecache_external(array(
     //   'style_name' => $style['name'],
-    //   'path' => $this->external_image_uri,
+    //   'path' => $this->external_image['url'],
     //   'alt' => 'Drupal logo',
     //   'width' => 20,
     //   'height' => 20,
@@ -182,8 +185,9 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
    * Test caching an external image using the whitelist.
    */
   function testCachingExternalImageUsingWhitelist() {
+    global $base_url;
     variable_set('imagecache_external_option', 'white');
-    variable_set('imagecache_external_hosts', 'drupal.org');
+    variable_set('imagecache_external_hosts', preg_replace('/https?:\/\//', '', $base_url));
     $this->testCachingExternalImage();
   }
 
@@ -193,7 +197,7 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
   function testCachingExternalImageUsingManagedFileSystem() {
     variable_set('imagecache_external_management', 'managed');
 
-    if ($path = imagecache_external_generate_path($this->external_image_uri)) {
+    if ($path = imagecache_external_generate_path($this->external_image['url'])) {
       $query = db_select('file_managed', 'f')
         ->fields('f', array('fid'))
         ->condition('uri', $path)
@@ -203,8 +207,9 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
 
       $this->assertTrue(!empty($fid), t('Image %original was cached in the managed filesystem with file ID %fid.', array(
         '%fid' => $fid,
-        '%original' => $this->external_image_uri,
+        '%original' => $this->external_image['url'],
       )));
     }
   }
+
 }
