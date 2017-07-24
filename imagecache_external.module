@@ -397,7 +397,7 @@ function imagecache_external_validate_host($url) {
 
     $validhost = FALSE;
     foreach ($list as $ext_host) {
-      if (preg_match('/\.?' . $ext_host . '/', $host) == 1) {
+      if (preg_match('/\.?' . preg_quote($ext_host, '/') . '/', $host) === 1) {
         $validhost = TRUE;
         break;
       }

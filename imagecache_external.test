@@ -41,11 +41,22 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
     // $user = $this->drupalCreateUser(array('access content'));
     // $this->drupalLogin($user);
 
-    // Set an external image to use for testing.
-    $test_images = $this->drupalGetTestFiles('image');
-    $this->external_image = (array) array_shift($test_images);
-    $this->external_image += image_get_info($this->external_image['uri']);
-    $this->external_image['url'] = file_create_url($this->external_image['uri']);
+    // Set an external image to use for testing. We specifically pick one from
+    // Simpletest that is larger than the 'thumbnail' style tested.
+    foreach ($this->drupalGetTestFiles('image') as $file) {
+      $info = image_get_info($file->uri);
+
+      if ($info['width'] > 100 || $info['height'] > 100) {
+        $this->external_image = array(
+          'uri' => $file->uri,
+          'url' => file_create_url($file->uri),
+          'height' => $info['height'],
+          'width' => $info['width'],
+        );
+
+        break;
+      }
+    }
   }
 
   /**
@@ -121,20 +132,28 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
     $this->createTextField($field_name, 'article');
     $instance = field_info_instance('node', $field_name, 'article');
     $instance['display']['default']['type'] = 'imagecache_external_image';
-    $instance['display']['default']['settings']['imagecache_external_style'] = 'large';
+    $instance['display']['default']['settings']['imagecache_external_style'] = 'thumbnail';
     field_update_instance($instance);
 
     // Create a new node with an image attached.
     $nid = $this->addNodeImage($this->external_image['url'], $field_name, 'article');
-    $node = node_load($nid);
+
+    if ($this->external_image['width'] > $this->external_image['height']) {
+      $width = 100;
+      $height = ceil(100 * ($this->external_image['height'] / $this->external_image['width']));
+    }
+    else {
+      $height = 100;
+      $width = ceil(100 * ($this->external_image['width'] / $this->external_image['height']));
+    }
 
     // Test that image is displayed using newly created style.
     $this->drupalGet('node/' . $nid);
     $img_tag = theme('imagecache_external', array(
-      'style_name' => 'large',
+      'style_name' => 'thumbnail',
       'path' => $this->external_image['url'],
-      'width' => $this->external_image['width'],
-      'height' => $this->external_image['height'],
+      'width' => $width,
+      'height' => $height,
     ));
     $this->assertRaw($img_tag, t('Image was successfully cached as %path.', array('%path' => $img_tag)));
   }
@@ -187,7 +206,8 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
   function testCachingExternalImageUsingWhitelist() {
     global $base_url;
     variable_set('imagecache_external_option', 'white');
-    variable_set('imagecache_external_hosts', preg_replace('/https?:\/\//', '', $base_url));
+    variable_set('imagecache_external_hosts', parse_url($base_url, PHP_URL_HOST));
+
     $this->testCachingExternalImage();
   }
 
@@ -210,6 +230,36 @@ class ImagecacheExternalTestCase extends DrupalWebTestCase {
         '%original' => $this->external_image['url'],
       )));
     }
+  }
+
+  /**
+   * Test the behaviour of imagecache_external_validate_host().
+   */
+  public function testCachingExternalWhitelistValidation() {
+    variable_set('imagecache_external_option', 'white');
+
+    // Ensure that special regex characters are properly escaped.
+    variable_set('imagecache_external_hosts', 'http://drupal.org');
+
+    // This fails because the host has a different hostname.
+    $failed_validation = imagecache_external_validate_host('http://example.org/drupal');
+    $this->assertFalse($failed_validation, t('Whitelist validation failed for http://example.org/drupal.'));
+
+    // This fails because the whitelist host has a protocol.
+    $successful_validation = imagecache_external_validate_host('http://drupal.org/drupal');
+    $this->assertFalse($successful_validation, t('Whitelist validation failed for http://drupal.org/drupal.'));
+
+    // Check that hosts without protocols work for both http and https.
+    variable_set('imagecache_external_hosts', 'drupal.org');
+
+    foreach (array('http://drupal.org', 'https://drupal.org') as $host) {
+      $validation = imagecache_external_validate_host($host);
+      $this->assertTrue($validation, t('Whitelist validation passed for @host.', array('@host' => $host)));
+    }
+
+    // Check that the matching doesn't exhibit regex-like behaviour.
+    $regex_validation = imagecache_external_validate_host('http://drupallorg.org');
+    $this->assertFalse($regex_validation, t('Whitelist validation failed for http://drupallorg.org.'));
   }
 
 }
