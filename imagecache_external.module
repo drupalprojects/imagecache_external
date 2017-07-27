@@ -136,50 +136,54 @@ function imagecache_external_fetch($url, $cachepath) {
   // Drupal config object.
   $config = imagecache_external_config();
 
-  // Drupal httpClient.
-  $http = \Drupal::httpClient();
-  $result = $http->request('get', $url);
-  $code   = floor($result->getStatusCode() / 100) * 100;
-  $types  = imagecache_external_allowed_mimetypes();
+  try {
+    // Drupal httpClient.
+    $http = \Drupal::httpClient();
+    $result = $http->request('get', $url);
+    $code   = floor($result->getStatusCode() / 100) * 100;
+    $types  = imagecache_external_allowed_mimetypes();
 
-  // If content-type not set, use the default 'application/octet-stream'.
-  $response_mimetype = isset($result->getHeaders()['content-type']) ? strtolower($result->getHeaders()['content-type']) : 'application/octet-stream';
+    // If content-type not set, use the default 'application/octet-stream'.
+    $response_mimetype = isset($result->getHeaders()['content-type']) ? strtolower($result->getHeaders()['content-type']) : 'application/octet-stream';
 
-  // Add extension to the cached file to allow file_entity to use it for
-  // mimetype identification.
-  $cachepath_ext = pathinfo($cachepath, PATHINFO_EXTENSION);
-  $default_extension = $config->get('imagecache_default_extension');
-  if (!$cachepath_ext && ($default_extension != '')) {
-    $cachepath .= $default_extension;
-  }
-
-  $fallback_image_fid = $config->get('imagecache_fallback_image');
-
-  // Explode content-type to handle mimetypes with more than one
-  // property (eg. image/jpeg;charset=UTF-8).
-  $content_type_array = explode(';', $response_mimetype);
-  $content_type_allowed = FALSE;
-  foreach ($content_type_array as $content_type) {
-    if (in_array(strtolower($content_type), $types)) {
-      $content_type_allowed = TRUE;
+    // Add extension to the cached file to allow file_entity to use it for
+    // mimetype identification.
+    $cachepath_ext = pathinfo($cachepath, PATHINFO_EXTENSION);
+    $default_extension = $config->get('imagecache_default_extension');
+    if (!$cachepath_ext && ($default_extension != '')) {
+      $cachepath .= $default_extension;
     }
-  }
-  if (!empty($result->getBody()) && $code != 400 && $code != 500 && $content_type_allowed) {
-    if ($config->get('imagecache_external_management') == 'unmanaged') {
-      return file_unmanaged_save_data($result->getBody(), $cachepath, FILE_EXISTS_REPLACE);
+
+    $fallback_image_fid = $config->get('imagecache_fallback_image');
+
+    // Explode content-type to handle mimetypes with more than one
+    // property (eg. image/jpeg;charset=UTF-8).
+    $content_type_array = explode(';', $response_mimetype);
+    $content_type_allowed = FALSE;
+    foreach ($content_type_array as $content_type) {
+      if (in_array(strtolower($content_type), $types)) {
+        $content_type_allowed = TRUE;
+      }
+    }
+    if (!empty($result->getBody()) && $code != 400 && $code != 500 && $content_type_allowed) {
+      if ($config->get('imagecache_external_management') == 'unmanaged') {
+        return file_unmanaged_save_data($result->getBody(), $cachepath, FILE_EXISTS_REPLACE);
+      }
+      else {
+        $file = file_save_data($result->getBody(), $cachepath, FILE_EXISTS_REPLACE);
+        return $file->uri;
+      }
+    }
+    elseif (!empty($fallback_image_fid)) {
+      $fallback_image = File::load($fallback_image_fid);
+      return $fallback_image->uri;
     }
     else {
-      $file = file_save_data($result->getBody(), $cachepath, FILE_EXISTS_REPLACE);
-      return $file->uri;
+      throw new Exception('Image could not be retrieved');
     }
   }
-  elseif (!empty($fallback_image_fid)) {
-    $fallback_image = File::load($fallback_image_fid);
-    return $fallback_image->uri;
-  }
-  else {
-    // If we are unsuccessful then log a message in watchdog.
-    \Drupal::logger('imagecache_external')->notice(t('The image %url could not be retrieved', ['%url' => $url]));
+  catch(Exception $e) {
+    \Drupal::logger('imagecache_external')->notice(t('The image %url could not be retrieved', array('%url' => $url)));
     return FALSE;
   }
 }
