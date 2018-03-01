@@ -22,7 +22,7 @@ admin/config/media/imagecache_external and either:
 
  <?php
   print theme('imagecache_external', [
-    'path' => 'https://drupal.org/files/druplicon.large_.png',
+    'uri' => 'https://drupal.org/files/druplicon.large_.png',
     'style_name'=> 'thumbnail',
     'alt' => 'Druplicon'
   ]);
@@ -32,7 +32,7 @@ or, in a render array, like this:
 <?php
   return [
     '#theme' => 'imagecache_external',
-    '#path' => 'https://drupal.org/files/druplicon.large_.png',
+    '#uri' => 'https://drupal.org/files/druplicon.large_.png',
     '#style_name' => 'thumbnail',
     '#alt' => 'Druplicon',
   ];
