@@ -186,6 +186,11 @@ class ImagecacheExternalImage extends FormatterBase implements ContainerFactoryP
         $image_path = imagecache_external_generate_path($values['value']);
       }
 
+      // Skip rendering this item if there is no image_path.
+      if (!$image_path) {
+        continue;
+      }
+
       if (isset($link_file)) {
         $url = Url::fromUri(file_create_url($image_path));
       }
